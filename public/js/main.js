@@ -33,6 +33,7 @@ class App {
     }
 
     loadBlob() {
+        this.audio.src = this.blob;
     }
 
     initRecord() {
@@ -56,6 +57,18 @@ class App {
     deleteFile() {
     }
 
+    setState(state) {
+        this.state = Object.assign({}, this.state, state);
+        this.render();
+    }
+
+    render() {
+        /**
+         * Coger el objeto JSON state e interpretarlo
+         * Si estamos playing, actualizar los segundos y cambiar el titulo a pause
+         * etc..
+         */
+    }
 
 }
 
