@@ -17,12 +17,15 @@ class App {
     init() {
         navigator.mediaDevices.getUserMedia({audio: true})
             .then(stream => {
-                //Si damos el permiso creara el boton de record
+                //Si damos el permiso creara el boton de record y subir
                 document.getElementById('liRecordBtn').appendChild(getRecordBtn());
+                document.getElementById('liUploadBtn').appendChild(getUploadBtn());
+
                 this.initRecord(stream);
                 this.initAudio();
             })
             .catch(err => {
+                console.log("No hay permisos para grabar");
                 document.getElementById('liRecordBtn').appendChild(document.createTextNode('No hay permisos para grabar'));
             });
     }
@@ -38,7 +41,7 @@ class App {
         });
         this.audio.addEventListener('ontimeupdate', () => {
             console.log("ontimeupdate");
-            this.render(); //TODO FEO MUY FEO
+            this.render();
         });
         this.audio.addEventListener('onended', () => {
             console.log("onended");
@@ -134,7 +137,6 @@ class App {
 
 window.onload = function () {
     document.getElementById('liPlayBtn').appendChild(getPlayBtn());
-    document.getElementById('liUploadBtn').appendChild(getUploadBtn());
     let app = new App();
     app.init();
     app.render();
