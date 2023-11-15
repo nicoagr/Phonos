@@ -9,7 +9,7 @@ class App {
 
 
     constructor() {
-        this.audio = document.getElementById('audioPlayer');
+        this.audio = new Audio();
         this.blob = null;
         this.state = {recording: false, uploading: false, audioloaded: false, playing: false, files: [], error: false};
     }
@@ -67,10 +67,12 @@ class App {
 
     playAudio() {
         setState({playing: true});
+        this.audio.play();
     }
 
     stopAudio() {
         this.setState({playing: false});
+        this.audio.stop();
     }
 
     upload() {
