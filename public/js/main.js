@@ -1,5 +1,8 @@
-class App {
+import {getRecordBtn} from "./recordBtn.js";
+import {getPlayBtn} from "./playBtn.js";
+import {getUploadBtn} from "./uploadBtn.js";
 
+class App {
     audio;
     blob;
     state;
@@ -58,5 +61,7 @@ class App {
 }
 
 window.onload = function () {
-    // Futuro código aquí
+    document.getElementById('liRecordBtn').appendChild(getRecordBtn());
+    document.getElementById('liPlayBtn').appendChild(getPlayBtn());
+    document.getElementById('liUploadBtn').appendChild(getUploadBtn());
 };
