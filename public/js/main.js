@@ -17,18 +17,18 @@ class App {
 
     initAudio() {
         this.audio = new Audio();
-        document.body.appendChild(this.audio);
+        // document.body.appendChild(this.audio);
 
-        document.getElementById('audio').addEventListener('onloadedmetadata', () => {
+        this.audio.addEventListener('onloadedmetadata', () => {
             console.log("onloadedmetadata")
         });
-        document.getElementById('audio').addEventListener('ondurationchange', () => {
+        this.audio.addEventListener('ondurationchange', () => {
             console.log("ondurationchange")
         });
-        document.getElementById('audio').addEventListener('ontimeupdate', () => {
+        this.audio.addEventListener('ontimeupdate', () => {
             console.log("ontimeupdate")
         });
-        document.getElementById('audio').addEventListener('onended', () => {
+        this.audio.addEventListener('onended', () => {
            console.log("onended")
         });
     }
