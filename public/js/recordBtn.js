@@ -3,6 +3,8 @@ function getRecordBtn() {
     btn.type = 'button';
     btn.id = 'recordBtn';
     btn.value = 'Grabar';
+    btn.className = 'boton';
+
     return btn;
 }
 

@@ -1,8 +1,76 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    padding: 50px;
+    font: 14px 'Trebuchet MS', sans-serif;
+    float: none;
+    text-align: center;
+}
+
+p {
+    font: 18px 'Trebuchet MS', sans-serif;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0px;
+
+}
+
+li {
+    margin: 15px;
+}
+
+#primary {
+    margin-top: 40px;
+    background-color: white;
+    padding: 10px 10px;
+    border-radius: 5px;
+    box-shadow: 3px 3px 8px darkgrey;
+    width: 340px;
+    float: none;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#playBtn,
+#recordBtn,
+#uploadBtn {
+    padding: 12px;
+    width: 300px;
+    border: none;
+    border-radius: 5px;
+    font: 18px 'Trebuchet MS', sans-serif;
+    font-size: 18px;
+    box-shadow: 2px 2px 8px darkgrey;
+}
+.nombre{
+    font: 14px 'Trebuchet MS', sans-serif;
+
+}
+
+#playBtn:hover,
+#recordBtn:hover,
+#uploadBtn:hover {
+    background-color: #DA0035;
+    cursor: pointer;
+    color:white;
+}
+#playBtn:disabled,
+#recordBtn:disabled,
+#uploadBtn:disabled{
+    background-color: #899291;
+    cursor: not-allowed;
+}
+
+hr {
+    width: 333px;
 }
 
 a {
-  color: #00B7FF;
+    color: #00B7FF;
+}
+#liRecordBtn{
+    color: red;
+
+
 }
