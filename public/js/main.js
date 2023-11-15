@@ -16,20 +16,19 @@ class App {
     }
 
     initAudio() {
-        this.audio = new Audio();
-        // document.body.appendChild(this.audio);
+        this.audio = document.createElement('audio');
 
         this.audio.addEventListener('onloadedmetadata', () => {
-            console.log("onloadedmetadata")
+            console.log("onloadedmetadata");
         });
         this.audio.addEventListener('ondurationchange', () => {
-            console.log("ondurationchange")
+            console.log("ondurationchange");
         });
         this.audio.addEventListener('ontimeupdate', () => {
-            console.log("ontimeupdate")
+            console.log("ontimeupdate");
         });
         this.audio.addEventListener('onended', () => {
-           console.log("onended")
+           console.log("onended");
         });
     }
 
