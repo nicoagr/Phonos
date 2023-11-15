@@ -12,8 +12,6 @@ class App {
         this.audio = document.getElementById('audioPlayer');
         this.blob = null;
         this.state = 'stopped';
-        this.init();
-
     }
 
     init() {
@@ -97,4 +95,6 @@ class App {
 window.onload = function () {
     document.getElementById('liPlayBtn').appendChild(getPlayBtn());
     document.getElementById('liUploadBtn').appendChild(getUploadBtn());
+    let app = new App();
+    app.init();
 };
