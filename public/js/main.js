@@ -66,12 +66,19 @@ class App {
     }
 
     playAudio() {
+        setState({playing: true});
     }
 
     stopAudio() {
+        this.setState({playing: false});
     }
 
     upload() {
+        this.setState({uploading: true});
+        /**
+         * Subir archivo al servidor aquí
+         */
+        this.setState({uploading: false});
     }
 
     deleteFile() {
