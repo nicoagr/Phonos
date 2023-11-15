@@ -1,6 +1,7 @@
 import {getRecordBtn} from "./recordBtn.js";
 import {getPlayBtn} from "./playBtn.js";
 import {getUploadBtn} from "./uploadBtn.js";
+import {formatAsTime} from "./utils.js";
 
 class App {
     audio;
@@ -35,9 +36,10 @@ class App {
         });
         this.audio.addEventListener('ontimeupdate', () => {
             console.log("ontimeupdate");
+            this.render(); //TODO FEO MUY FEO
         });
         this.audio.addEventListener('onended', () => {
-           console.log("onended");
+            console.log("onended");
         });
     }
 
@@ -97,26 +99,37 @@ class App {
          * Si estamos playing, actualizar los segundos y cambiar el titulo a pause
          * etc..
          */
-        if(!this.state.error) {
+        let playBtn = document.getElementById('playBtn');
+        let uploadBtn = document.getElementById('uploadBtn');
+        let recordBtn = document.getElementById('recordBtn');
+
+        if (!this.state.error) {
             if (this.state.recording) {
-                //estamos grabando
-            } else { //no estamos grabando
-                if (this.state.playing) {
-                    //estamos reproduciendo
-                    //no podemos reproducir y grabar a la vez
-                }
-                if (this.state.audioloaded) {
-                    //se ha finalizado o se ha cargado audio
-                    //no se puede cargar audio o finalizar audio si se está grabando
-                }
-            }
-            if (this.state.uploading) {
-                //estamos subiendo audio
+                playBtn.disabled = true;
+                uploadBtn.disabled = true;
+                recordBtn.disabled = false;
+                recordBtn.value = 'Finalizar';
+            } else if (this.state.audioloaded) {
+                recordBtn.value = 'Grabar';
+                recordBtn.disabled = false;
+                playBtn.disabled = false;
+                uploadBtn.disabled = false;
+            } else if (this.state.playing) {
+                recordBtn.disabled = true;
+                uploadBtn.disabled = true;
+                playBtn.disabled = false;
+                playBtn.value = 'Parar ' + formatAsTime(this.audio.currentTime);
+            } else if (this.state.uploading) {
+                recordBtn.disabled = true;
+                playBtn.disabled = true;
+                uploadBtn.disabled = true;
             }
         } else {
-            //ha habido un error
+            recordBtn.disabled = true;
+            playBtn.disabled = true;
+            uploadBtn.disabled = true;
+            console.log("Error")
         }
-
     }
 
 }
@@ -126,4 +139,5 @@ window.onload = function () {
     document.getElementById('liUploadBtn').appendChild(getUploadBtn());
     let app = new App();
     app.init();
+    app.render();
 };
