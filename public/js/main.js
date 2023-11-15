@@ -9,10 +9,21 @@ class App {
 
 
     constructor() {
+        this.audio = document.getElementById('audioPlayer');
+        this.blob = null;
+        this.state = 'stopped';
+        this.init();
 
     }
 
     init() {
+        navigator.mediaDevices.getUserMedia({audio: true})
+            .then(stream => {
+                //Si damos el permiso creara el boton de record
+                document.getElementById('liRecordBtn').appendChild(getRecordBtn());
+                this.initRecord(stream);
+                this.initAudio();
+            });
     }
 
     initAudio() {
@@ -36,8 +47,19 @@ class App {
         this.audio.src = this.blob;
     }
 
-    initRecord() {
+    initRecord(s) {
+        let audioChunks = [];
+        let mediaRecorder = new MediaRecorder(s);
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        }
+        mediaRecorder.onstop = () => {
+            this.blob = new Blob(audioChunks, {type: 'audio/wav'});
+            this.loadBlob();
+
+        }
     }
+
 
     record() {
     }
@@ -73,7 +95,6 @@ class App {
 }
 
 window.onload = function () {
-    document.getElementById('liRecordBtn').appendChild(getRecordBtn());
     document.getElementById('liPlayBtn').appendChild(getPlayBtn());
     document.getElementById('liUploadBtn').appendChild(getUploadBtn());
 };
