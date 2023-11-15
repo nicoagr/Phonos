@@ -11,9 +11,8 @@ class App {
     constructor() {
         this.audio = document.getElementById('audioPlayer');
         this.blob = null;
-        this.state = 'stopped';
+        this.state = {recording: false, uploading: false, audioloaded: false, playing: false, files: [], error: false};
         this.init();
-
     }
 
     init() {
