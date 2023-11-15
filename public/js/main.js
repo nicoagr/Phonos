@@ -95,6 +95,26 @@ class App {
          * Si estamos playing, actualizar los segundos y cambiar el titulo a pause
          * etc..
          */
+        if(!this.state.error) {
+            if (this.state.recording) {
+                //estamos grabando
+            } else { //no estamos grabando
+                if (this.state.playing) {
+                    //estamos reproduciendo
+                    //no podemos reproducir y grabar a la vez
+                }
+                if (this.state.audioloaded) {
+                    //se ha finalizado o se ha cargado audio
+                    //no se puede cargar audio o finalizar audio si se está grabando
+                }
+            }
+            if (this.state.uploading) {
+                //estamos subiendo audio
+            }
+        } else {
+            //ha habido un error
+        }
+
     }
 
 }
