@@ -8,7 +8,6 @@ class App {
     blob;
     state;
 
-
     constructor() {
         this.audio = new Audio();
         this.blob = null;
@@ -22,6 +21,9 @@ class App {
                 document.getElementById('liRecordBtn').appendChild(getRecordBtn());
                 this.initRecord(stream);
                 this.initAudio();
+            })
+            .catch(err => {
+                document.getElementById('liRecordBtn').appendChild(document.createTextNode('No hay permisos para grabar'));
             });
     }
 
@@ -53,13 +55,11 @@ class App {
         mediaRecorder.ondataavailable = (event) => {
             audioChunks.push(event.data);
         }
-        mediaRecorder.onstop = () => {
+        mediaRecorder.onstop = function() {
             this.blob = new Blob(audioChunks, {type: 'audio/wav'});
             this.loadBlob();
-
         }
     }
-
 
     record() {
     }
@@ -68,7 +68,7 @@ class App {
     }
 
     playAudio() {
-        setState({playing: true});
+        this.setState({playing: true});
         this.audio.play();
     }
 
@@ -103,32 +103,30 @@ class App {
         let uploadBtn = document.getElementById('uploadBtn');
         let recordBtn = document.getElementById('recordBtn');
 
-        if (!this.state.error) {
-            if (this.state.recording) {
-                playBtn.disabled = true;
-                uploadBtn.disabled = true;
-                recordBtn.disabled = false;
-                recordBtn.value = 'Finalizar';
-            } else if (this.state.audioloaded) {
-                recordBtn.value = 'Grabar';
-                recordBtn.disabled = false;
-                playBtn.disabled = false;
-                uploadBtn.disabled = false;
-            } else if (this.state.playing) {
-                recordBtn.disabled = true;
-                uploadBtn.disabled = true;
-                playBtn.disabled = false;
-                playBtn.value = 'Parar ' + formatAsTime(this.audio.currentTime);
-            } else if (this.state.uploading) {
-                recordBtn.disabled = true;
-                playBtn.disabled = true;
-                uploadBtn.disabled = true;
-            }
-        } else {
+        if (this.state.error) {
             recordBtn.disabled = true;
             playBtn.disabled = true;
             uploadBtn.disabled = true;
-            console.log("Error")
+            console.log("Error");
+        } else if (this.state.playing) {
+            recordBtn.disabled = true;
+            uploadBtn.disabled = true;
+            playBtn.disabled = false;
+            playBtn.value = 'Parar ' + formatAsTime(this.audio.currentTime);
+        } else if (this.state.recording) {
+            playBtn.disabled = true;
+            uploadBtn.disabled = true;
+            recordBtn.disabled = false;
+            recordBtn.value = 'Finalizar';
+        } else if (this.state.audioloaded) {
+            recordBtn.value = 'Grabar';
+            recordBtn.disabled = false;
+            playBtn.disabled = false;
+            uploadBtn.disabled = false;
+        } else if (this.state.uploading) {
+            recordBtn.disabled = true;
+            playBtn.disabled = true;
+            uploadBtn.disabled = true;
         }
     }
 
