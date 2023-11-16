@@ -4,6 +4,7 @@ import {getUploadBtn} from "./uploadBtn.js";
 import {formatAsTime} from "./utils.js";
 
 class App {
+
     audio;
     blob;
     state;
@@ -50,6 +51,7 @@ class App {
 
     loadBlob() {
         this.audio.src = this.blob;
+        this.setState({audioloaded: true});
     }
 
     initRecord(s) {
