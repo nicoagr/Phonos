@@ -8,10 +8,11 @@ class App {
     audio;
     blob;
     state;
-
+    mediaRecorder;
     constructor() {
         this.audio = new Audio();
         this.blob = null;
+        this.mediaRecorder = null;
         this.state = {recording: false, uploading: false, audioloaded: false, playing: false, files: [], error: false};
     }
 
@@ -56,20 +57,30 @@ class App {
 
     initRecord(s) {
         let audioChunks = [];
-        let mediaRecorder = new MediaRecorder(s);
+        this.mediaRecorder = new MediaRecorder(s);
         mediaRecorder.ondataavailable = (event) => {
             audioChunks.push(event.data);
         }
-        mediaRecorder.onstop = function() {
+        mediaRecorder.onstop = ()=> {
             this.blob = new Blob(audioChunks, {type: 'audio/wav'});
             this.loadBlob();
         }
     }
 
     record() {
+        if(!this.state.recording){
+            this.blob = null;
+            this.audio.pause();
+            this.mediaRecorder.start();
+            this.setState({recording:true});
+        } else this.stopRecording()
     }
 
     stopRecording() {
+        if(this.state.recording){
+            this.mediaRecorder.stop();
+            this.setState({recording:false})
+        }
     }
 
     playAudio() {
