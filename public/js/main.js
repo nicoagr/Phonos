@@ -1,4 +1,4 @@
-import {getRecordBtn} from "./recordBtn.js";
+import {getRecordBtn, getNextRecordIcon} from "./recordBtn.js";
 import {getPlayBtn} from "./playBtn.js";
 import {getUploadBtn} from "./uploadBtn.js";
 import {formatAsTime} from "./utils.js";
@@ -10,7 +10,6 @@ class App {
     state;
     mediaRecorder;
     constructor() {
-        this.audio = new Audio();
         this.blob = null;
         this.mediaRecorder = null;
         this.state = {recording: false, uploading: false, audioloaded: false, playing: false, files: [], error: false};
@@ -26,6 +25,11 @@ class App {
                 //Si damos el permiso y los metodos van bien creara el boton de record y subir
                 document.getElementById('liRecordBtn').appendChild(getRecordBtn());
                 document.getElementById('liUploadBtn').appendChild(getUploadBtn());
+                document.getElementById('recordBtn').addEventListener('click', () => this.recordBtn());
+                document.getElementById('uploadBtn').addEventListener('click', () => this.uploadBtn());
+
+                // Render
+                this.render();
             })
             .catch(err => {
                 document.getElementById('liRecordBtn').appendChild(document.createTextNode('No hay permisos para grabar'));
@@ -33,7 +37,7 @@ class App {
     }
 
     initAudio() {
-        this.audio = document.createElement('audio');
+        this.audio = new Audio();
 
         this.audio.addEventListener('onloadedmetadata', () => {
             console.log("onloadedmetadata");
@@ -51,36 +55,34 @@ class App {
     }
 
     loadBlob() {
-        this.audio.src = this.blob;
+        let audioUrl = URL.createObjectURL(this.blob);
+        this.audio.src = audioUrl;
         this.setState({audioloaded: true});
     }
 
-    initRecord(s) {
+    initRecord(stream) {
         let audioChunks = [];
-        this.mediaRecorder = new MediaRecorder(s);
-        this.mediaRecorder.ondataavailable = (event) => {
+        this.mediaRecorder = new MediaRecorder(stream);
+        this.mediaRecorder.addEventListener('dataavailable', (event) => {
             audioChunks.push(event.data);
-        }
-        this.mediaRecorder.onstop = ()=> {
+        });
+        this.mediaRecorder.addEventListener('stop', () => {
             this.blob = new Blob(audioChunks, {type: 'audio/wav'});
             this.loadBlob();
-        }
+        });
     }
 
     record() {
-        if(!this.state.recording){
-            this.blob = null;
-            this.audio.pause();
-            this.mediaRecorder.start();
-            this.setState({recording:true});
-        } else this.stopRecording()
+        this.blob = null;
+        this.stopAudio();
+        this.mediaRecorder.start();
+        this.setState({recording:true});
     }
 
     stopRecording() {
-        if(this.state.recording){
-            this.mediaRecorder.stop();
-            this.setState({recording:false})
-        }
+        this.mediaRecorder.stop();
+        this.setState({recording:false});
+
     }
 
     playAudio() {
@@ -90,7 +92,8 @@ class App {
 
     stopAudio() {
         this.setState({playing: false});
-        this.audio.stop();
+        this.audio.pause();
+        this.audio.currentTime = 0;
     }
 
     upload() {
@@ -102,6 +105,20 @@ class App {
     }
 
     deleteFile() {
+    }
+
+    recordBtn() {
+        if (!this.state.recording) this.record();
+        else this.stopRecording();
+    }
+
+    playBtn() {
+        if (!this.state.playing) this.playAudio();
+        else this.stopAudio();
+    }
+
+    uploadBtn() {
+        this.upload();
     }
 
     setState(state) {
@@ -132,6 +149,7 @@ class App {
         } else if (this.state.recording) {
             playBtn.disabled = true;
             uploadBtn.disabled = true;
+            document.getElementById('recordBtn').innerHTML = getNextRecordIcon() + ' Parar';
             recordBtn.disabled = false;
             recordBtn.value = 'Finalizar';
         } else if (this.state.audioloaded) {
@@ -152,5 +170,5 @@ window.onload = function () {
     document.getElementById('liPlayBtn').appendChild(getPlayBtn());
     let app = new App();
     app.init();
-    app.render();
+    document.getElementById('playBtn').addEventListener('click', () => app.playAudio());
 };
