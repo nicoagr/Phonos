@@ -214,18 +214,23 @@ class App {
              let fila = icon.closest("li");
              //Hay que quitar el remove si se utiliza el endpoint
              fila.remove();
-            /** Esta es la llamada al endpoint
+            // Esta es la llamada al endpoint
+            /**
             let uuid = fila.dataset.uuid;
             let filename = fila.dataset.filename;
-            let xhr = new XMLHttpRequest();
-            xhr.open('DELETE', '/api/delete/' + uuid + '/' + filename, true);
-            xhr.onload = function () {
-                if (xhr.status === 200) { //Si la peticion es correcta se borra de la lista
+            fetch('/api/delete/' + uuid + '/' + filename, {
+                method: 'DELETE',
+            })
+                .then(function (res) {
+                    if (!res.ok) {
+                        throw new Error('No se puede borrar el fichero: ' + response.statusText);
+                    }
                     fila.remove();
-                }
-            }
-            xhr.send();
-            */
+                })
+                .catch(function (err) {
+                    console.error(err);
+                });
+             */
         }
 
         this.state.files.forEach((file) => {
