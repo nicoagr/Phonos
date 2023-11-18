@@ -60,6 +60,7 @@ li {
 #uploadBtn:disabled{
     background-color: #899291;
     cursor: not-allowed;
+    color:black;
 }
 
 hr {

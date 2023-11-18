@@ -201,6 +201,7 @@ class App {
         }
         if (!this.state.audioloaded) {
             uploadBtn.disabled = true;
+            playBtn.disabled = true;
         }
     }
 
