@@ -72,6 +72,21 @@ a {
 }
 #liRecordBtn{
     color: red;
-
-
 }
+
+.icon1{
+    cursor: pointer;
+    padding-right: 65px;
+}
+.icon2{
+    padding-left: 65px;
+    cursor: pointer;
+}
+.icon1:hover,
+.icon2:hover{
+    fill: gray;
+}
+span{
+    fill: darkgrey;
+}
+

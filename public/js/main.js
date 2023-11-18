@@ -213,6 +213,8 @@ class App {
             let li = document.createElement('li');
             let icon = document.createElement('span');
             let icon2 = document.createElement('span');
+            icon.className = 'icon1';
+            icon2.className = 'icon2';
             icon.innerHTML = getCopyIcon();
             li.appendChild(icon);
             li.appendChild(document.createTextNode(file.date));
