@@ -9,8 +9,11 @@ class App {
     blob;
     state;
     mediaRecorder;
+    reloj;
+    secs ;
     constructor() {
         this.blob = null;
+        this.secs = 0;
         this.mediaRecorder = null;
         this.state = {recording: false, uploading: false, audioloaded: false, playing: false, files: [], error: false};
     }
@@ -39,18 +42,21 @@ class App {
     initAudio() {
         this.audio = new Audio();
 
-        this.audio.addEventListener('onloadedmetadata', () => {
+        this.audio.addEventListener('loadedmetadata', () => {
             console.log("onloadedmetadata");
+            this.render();
         });
-        this.audio.addEventListener('ondurationchange', () => {
+        this.audio.addEventListener('durationchange', () => {
             console.log("ondurationchange");
+            this.render();
         });
-        this.audio.addEventListener('ontimeupdate', () => {
+        this.audio.addEventListener('timeupdate', () => {
             console.log("ontimeupdate");
             this.render();
         });
-        this.audio.addEventListener('onended', () => {
+        this.audio.addEventListener('ended', () => {
             console.log("onended");
+            this.setState({playing: false})
         });
     }
 
@@ -76,24 +82,26 @@ class App {
         this.blob = null;
         this.stopAudio();
         this.mediaRecorder.start();
+        this.reloj = setInterval(this.secondCounter, 1000, this);
         this.setState({recording:true});
     }
 
     stopRecording() {
         this.mediaRecorder.stop();
+        clearInterval(this.reloj);
+        this.secs = 0;
         this.setState({recording:false});
-
     }
 
     playAudio() {
-        this.setState({playing: true});
         this.audio.play();
+        this.setState({playing: true});
     }
 
     stopAudio() {
-        this.setState({playing: false});
         this.audio.pause();
         this.audio.currentTime = 0;
+        this.setState({playing: false});
     }
 
     upload() {
@@ -105,6 +113,12 @@ class App {
     }
 
     deleteFile() {
+    }
+
+    secondCounter(app) {
+        app.secs++;
+        app.render();
+        if (app.secs > 5*60) this.stopRecording();
     }
 
     recordBtn() {
@@ -145,21 +159,26 @@ class App {
             recordBtn.disabled = true;
             uploadBtn.disabled = true;
             playBtn.disabled = false;
-            playBtn.value = 'Parar ' + formatAsTime(this.audio.currentTime);
+            playBtn.value = 'Parar ' + formatAsTime(this.audio.duration-this.audio.currentTime);
         } else if (this.state.recording) {
             playBtn.disabled = true;
             uploadBtn.disabled = true;
-            document.getElementById('recordBtn').innerHTML = getNextRecordIcon() + ' Parar';
+            recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(300-this.secs);
             recordBtn.disabled = false;
             recordBtn.value = 'Finalizar';
         } else if (this.state.audioloaded) {
-            recordBtn.value = 'Grabar';
+            recordBtn.innerHTML = 'Grabar';
             recordBtn.disabled = false;
             playBtn.disabled = false;
+            playBtn.value = "Reproducir "+formatAsTime(this.audio.duration);
             uploadBtn.disabled = false;
         } else if (this.state.uploading) {
             recordBtn.disabled = true;
             playBtn.disabled = true;
+            uploadBtn.disabled = true;
+            uploadBtn.value = "Subiendo...";
+        }
+        if (!this.state.audioloaded) {
             uploadBtn.disabled = true;
         }
     }
@@ -170,5 +189,5 @@ window.onload = function () {
     document.getElementById('liPlayBtn').appendChild(getPlayBtn());
     let app = new App();
     app.init();
-    document.getElementById('playBtn').addEventListener('click', () => app.playAudio());
+    document.getElementById('playBtn').addEventListener('click', () => app.playBtn());
 };
