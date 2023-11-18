@@ -2,7 +2,7 @@ import {getRecordBtn, getNextRecordIcon} from "./recordBtn.js";
 import {getPlayBtn, getStopIcon, getPlayIcon} from "./playBtn.js";
 import {getUploadBtn} from "./uploadBtn.js";
 import {formatAsTime} from "./utils/time.js";
-import {v4 as uuidv4} from "./utils/uuid/v4.js";
+import v4 from "./utils/uuid/v4.js";
 
 class App {
 
@@ -21,7 +21,7 @@ class App {
         this.mediaRecorder = null;
         this.state = {recording: false, uploading: false, audioloaded: false, playing: false, files: [], error: false};
         if (!localStorage.getItem("uuid"))
-            localStorage.setItem("uuid", uuidv4());
+            localStorage.setItem("uuid", v4());
         this.uuid = localStorage.getItem("uuid");
     }
 
