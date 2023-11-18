@@ -1,7 +1,8 @@
 import {getRecordBtn, getNextRecordIcon} from "./recordBtn.js";
 import {getPlayBtn, getStopIcon, getPlayIcon} from "./playBtn.js";
 import {getUploadBtn} from "./uploadBtn.js";
-import {formatAsTime} from "./utils.js";
+import {formatAsTime} from "./utils/time.js";
+import {v4 as uuidv4} from "./utils/uuid/v4.js";
 
 class App {
 
@@ -10,14 +11,18 @@ class App {
     state;
     mediaRecorder;
     reloj;
-    secs ;
+    secs;
     audioChunks;
+    uuid;
 
     constructor() {
         this.blob = null;
         this.secs = 0;
         this.mediaRecorder = null;
         this.state = {recording: false, uploading: false, audioloaded: false, playing: false, files: [], error: false};
+        if (!localStorage.getItem("uuid"))
+            localStorage.setItem("uuid", uuidv4());
+        this.uuid = localStorage.getItem("uuid");
     }
 
     init() {
@@ -85,14 +90,14 @@ class App {
         this.stopAudio();
         this.mediaRecorder.start();
         this.reloj = setInterval(this.secondCounter, 500, this);
-        this.setState({recording:true});
+        this.setState({recording: true});
     }
 
     stopRecording() {
         this.mediaRecorder.stop();
         clearInterval(this.reloj);
         this.secs = 0;
-        this.setState({recording:false});
+        this.setState({recording: false});
     }
 
     playAudio() {
@@ -108,10 +113,24 @@ class App {
 
     upload() {
         this.setState({uploading: true});
-        /**
-         * Subir archivo al servidor aqui
-         */
-        this.setState({uploading: false});
+        const body = new FormData(); // Mediante FormData podremos subir el audio al servidor
+        body.append("recording", this.blob); // en el atributo recording de formData guarda el audio para su posterior subida
+        fetch("/api/upload/" + this.uuid, {
+            method: "POST", // usaremos el método POST para subir el audio
+            body,
+        })
+            .then((res) => res.json())
+            // el servidor, una vez recogido el audio,devolverá la lista de todos los ficheros a nombre del presente usuario (inlcuido el que se acaba de subir)
+            .then((json) => {
+                this.setState({
+                    files: json.files, // todos los ficheros del usuario
+                    uploading: false, // actualizar el estado actual
+                    audioloaded: true, // actualizar estado actual
+                });
+            })
+            .catch((err) => {
+                this.setState({error: true});
+            });
     }
 
     deleteFile() {
@@ -120,7 +139,7 @@ class App {
     secondCounter(app) {
         app.secs += 0.5;
         app.render();
-        if (app.secs > 5*60*2) app.stopRecording();
+        if (app.secs > 5 * 60 * 2) app.stopRecording();
     }
 
     recordBtn() {
@@ -161,18 +180,18 @@ class App {
             recordBtn.disabled = true;
             uploadBtn.disabled = true;
             playBtn.disabled = false;
-            playBtn.innerHTML = getStopIcon() + ' Parar ' + formatAsTime(this.audio.duration-this.audio.currentTime);
+            playBtn.innerHTML = getStopIcon() + ' Parar ' + formatAsTime(this.audio.duration - this.audio.currentTime);
         } else if (this.state.recording) {
             playBtn.disabled = true;
             uploadBtn.disabled = true;
-            recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(5*60-this.secs);
+            recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(5 * 60 - this.secs);
             recordBtn.disabled = false;
             recordBtn.value = 'Finalizar';
         } else if (this.state.audioloaded) {
             recordBtn.innerHTML = 'Grabar';
             recordBtn.disabled = false;
             playBtn.disabled = false;
-            playBtn.innerHTML = getPlayIcon() + " Reproducir "+formatAsTime(this.audio.duration);
+            playBtn.innerHTML = getPlayIcon() + " Reproducir " + formatAsTime(this.audio.duration);
             uploadBtn.disabled = false;
         } else if (this.state.uploading) {
             recordBtn.disabled = true;
