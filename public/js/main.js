@@ -1,5 +1,5 @@
 import {getRecordBtn, getNextRecordIcon} from "./recordBtn.js";
-import {getPlayBtn} from "./playBtn.js";
+import {getPlayBtn, getStopIcon, getPlayIcon} from "./playBtn.js";
 import {getUploadBtn} from "./uploadBtn.js";
 import {formatAsTime} from "./utils.js";
 
@@ -11,6 +11,8 @@ class App {
     mediaRecorder;
     reloj;
     secs ;
+    audioChunks;
+
     constructor() {
         this.blob = null;
         this.secs = 0;
@@ -62,27 +64,27 @@ class App {
 
     loadBlob() {
         let audioUrl = URL.createObjectURL(this.blob);
+        this.initAudio();
         this.audio.src = audioUrl;
         this.setState({audioloaded: true});
     }
 
     initRecord(stream) {
-        let audioChunks = [];
         this.mediaRecorder = new MediaRecorder(stream);
         this.mediaRecorder.addEventListener('dataavailable', (event) => {
-            audioChunks.push(event.data);
+            this.audioChunks.push(event.data);
         });
         this.mediaRecorder.addEventListener('stop', () => {
-            this.blob = new Blob(audioChunks, {type: 'audio/wav'});
+            this.blob = new Blob(this.audioChunks, {type: 'audio/wav'});
             this.loadBlob();
         });
     }
 
     record() {
-        this.blob = null;
+        this.audioChunks = [];
         this.stopAudio();
         this.mediaRecorder.start();
-        this.reloj = setInterval(this.secondCounter, 1000, this);
+        this.reloj = setInterval(this.secondCounter, 500, this);
         this.setState({recording:true});
     }
 
@@ -116,9 +118,9 @@ class App {
     }
 
     secondCounter(app) {
-        app.secs++;
+        app.secs += 0.5;
         app.render();
-        if (app.secs > 5*60) this.stopRecording();
+        if (app.secs > 5*60*2) app.stopRecording();
     }
 
     recordBtn() {
@@ -159,18 +161,18 @@ class App {
             recordBtn.disabled = true;
             uploadBtn.disabled = true;
             playBtn.disabled = false;
-            playBtn.value = 'Parar ' + formatAsTime(this.audio.duration-this.audio.currentTime);
+            playBtn.innerHTML = getStopIcon() + ' Parar ' + formatAsTime(this.audio.duration-this.audio.currentTime);
         } else if (this.state.recording) {
             playBtn.disabled = true;
             uploadBtn.disabled = true;
-            recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(300-this.secs);
+            recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(5*60-this.secs);
             recordBtn.disabled = false;
             recordBtn.value = 'Finalizar';
         } else if (this.state.audioloaded) {
             recordBtn.innerHTML = 'Grabar';
             recordBtn.disabled = false;
             playBtn.disabled = false;
-            playBtn.value = "Reproducir "+formatAsTime(this.audio.duration);
+            playBtn.innerHTML = getPlayIcon() + " Reproducir "+formatAsTime(this.audio.duration);
             uploadBtn.disabled = false;
         } else if (this.state.uploading) {
             recordBtn.disabled = true;
