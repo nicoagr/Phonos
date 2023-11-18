@@ -137,8 +137,7 @@ class App {
             });
     }
 
-    deleteFile() {
-    }
+
 
     secondCounter(app) {
         app.secs += 0.5;
@@ -210,6 +209,25 @@ class App {
             }
         }
         listaFiles.innerHTML = "";
+
+        function deleteFile(icon){
+             let fila = icon.closest("li");
+             //Hay que quitar el remove si se utiliza el endpoint
+             fila.remove();
+            /** Esta es la llamada al endpoint
+            let uuid = fila.dataset.uuid;
+            let filename = fila.dataset.filename;
+            let xhr = new XMLHttpRequest();
+            xhr.open('DELETE', '/api/delete/' + uuid + '/' + filename, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) { //Si la peticion es correcta se borra de la lista
+                    fila.remove();
+                }
+            }
+            xhr.send();
+            */
+        }
+
         this.state.files.forEach((file) => {
             // Cargar cada archivo en el servidor
             // crear tags
@@ -232,6 +250,9 @@ class App {
             // icono basura
             icon2.className = 'icon2';
             icon2.innerHTML = getTrashIcon();
+            icon2.addEventListener('click', function () {
+                deleteFile(icon2);
+            });
             li.appendChild(icon2);
             // añadir a la lista
             listaFiles.appendChild(li);
