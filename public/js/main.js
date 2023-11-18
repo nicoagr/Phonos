@@ -2,6 +2,7 @@ import {getRecordBtn, getNextRecordIcon} from "./recordBtn.js";
 import {getPlayBtn, getStopIcon, getPlayIcon} from "./playBtn.js";
 import {getUploadBtn} from "./uploadBtn.js";
 import {formatAsTime} from "./utils/time.js";
+import {getCopyIcon, getTrashIcon} from "./utils/icons.js";
 import v4 from "./utils/uuid/v4.js";
 
 class App {
@@ -37,12 +38,14 @@ class App {
                 document.getElementById('liUploadBtn').appendChild(getUploadBtn());
                 document.getElementById('recordBtn').addEventListener('click', () => this.recordBtn());
                 document.getElementById('uploadBtn').addEventListener('click', () => this.uploadBtn());
+                document.getElementById('apptitle').innerText = 'Grabadora y reproductora de audio';
 
                 // Render
                 this.render();
             })
             .catch(err => {
                 document.getElementById('liRecordBtn').appendChild(document.createTextNode('No hay permisos para grabar'));
+                this.render();
             });
     }
 
@@ -125,7 +128,6 @@ class App {
                 this.setState({
                     files: json.files, // todos los ficheros del usuario
                     uploading: false, // actualizar el estado actual
-                    audioloaded: true, // actualizar estado actual
                 });
             })
             .catch((err) => {
@@ -170,39 +172,54 @@ class App {
         let playBtn = document.getElementById('playBtn');
         let uploadBtn = document.getElementById('uploadBtn');
         let recordBtn = document.getElementById('recordBtn');
-
-        if (this.state.error) {
-            recordBtn.disabled = true;
-            playBtn.disabled = true;
-            uploadBtn.disabled = true;
-            console.log("Error");
-        } else if (this.state.playing) {
-            recordBtn.disabled = true;
-            uploadBtn.disabled = true;
-            playBtn.disabled = false;
-            playBtn.innerHTML = getStopIcon() + ' Parar ' + formatAsTime(this.audio.duration - this.audio.currentTime);
-        } else if (this.state.recording) {
-            playBtn.disabled = true;
-            uploadBtn.disabled = true;
-            recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(5 * 60 - this.secs);
-            recordBtn.disabled = false;
-            recordBtn.value = 'Finalizar';
-        } else if (this.state.audioloaded) {
-            recordBtn.innerHTML = 'Grabar';
-            recordBtn.disabled = false;
-            playBtn.disabled = false;
-            playBtn.innerHTML = getPlayIcon() + " Reproducir " + formatAsTime(this.audio.duration);
-            uploadBtn.disabled = false;
-        } else if (this.state.uploading) {
-            recordBtn.disabled = true;
-            playBtn.disabled = true;
-            uploadBtn.disabled = true;
-            uploadBtn.value = "Subiendo...";
+        let listaFiles = document.getElementById('lista2');
+        if (playBtn != null && uploadBtn != null && recordBtn != null) {
+            if (this.state.error) {
+                recordBtn.disabled = true;
+                playBtn.disabled = true;
+                uploadBtn.disabled = true;
+                console.log("Error");
+            } else if (this.state.playing) {
+                recordBtn.disabled = true;
+                uploadBtn.disabled = true;
+                playBtn.disabled = false;
+                playBtn.innerHTML = getStopIcon() + ' Parar ' + formatAsTime(this.audio.duration - this.audio.currentTime);
+            } else if (this.state.recording) {
+                playBtn.disabled = true;
+                uploadBtn.disabled = true;
+                recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(5 * 60 - this.secs);
+                recordBtn.disabled = false;
+                recordBtn.value = 'Finalizar';
+            } else if (this.state.audioloaded) {
+                recordBtn.innerHTML = 'Grabar';
+                recordBtn.disabled = false;
+                playBtn.disabled = false;
+                playBtn.innerHTML = getPlayIcon() + " Reproducir " + formatAsTime(this.audio.duration);
+                uploadBtn.disabled = false;
+            } else if (this.state.uploading) {
+                recordBtn.disabled = true;
+                playBtn.disabled = true;
+                uploadBtn.disabled = true;
+                uploadBtn.value = "Subiendo...";
+            }
+            if (!this.state.audioloaded) {
+                uploadBtn.disabled = true;
+                playBtn.disabled = true;
+            }
         }
-        if (!this.state.audioloaded) {
-            uploadBtn.disabled = true;
-            playBtn.disabled = true;
-        }
+        listaFiles.innerHTML = "";
+        this.state.files.forEach((file) => {
+            // Cargar cada archivo en el servidor
+            let li = document.createElement('li');
+            let icon = document.createElement('span');
+            let icon2 = document.createElement('span');
+            icon.innerHTML = getCopyIcon();
+            li.appendChild(icon);
+            li.appendChild(document.createTextNode(file.date));
+            icon2.innerHTML = getTrashIcon();
+            li.appendChild(icon2);
+            listaFiles.appendChild(li);
+        });
     }
 
 }
@@ -212,4 +229,9 @@ window.onload = function () {
     let app = new App();
     app.init();
     document.getElementById('playBtn').addEventListener('click', () => app.playBtn());
+    fetch("/api/list")
+        .then((r) => r.json())
+        .then((json) => {
+            app.setState({files: json.files});
+        });
 };
