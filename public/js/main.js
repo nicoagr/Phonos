@@ -5,6 +5,8 @@ import {formatAsTime} from "./utils/time/time.js";
 import {getCopyIcon, getTrashIcon} from "./utils/icons.js";
 import v4 from "./utils/uuid/v4.js";
 
+
+
 class App {
 
     audio;
@@ -213,15 +215,20 @@ class App {
             // crear tags
             let li = document.createElement('li');
             let icon = document.createElement('span');
+            let p = document.createElement('p');
             let icon2 = document.createElement('span');
             // icono copiar
             icon.className = 'icon1';
             icon.innerHTML = getCopyIcon();
             li.appendChild(icon);
             // texto
-            var momentObj = moment.unix(file.date);
-            momentObj.locale('es');
-            li.appendChild(document.createTextNode(momentObj.fromNow()));
+            moment.locale('es');
+            var momentOb1 = moment.unix(file.date).day();
+            console.log(momentOb1);
+            let semana= ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+            var momentObj2 = moment.unix(file.date).format('h:mm a');
+            var dia = semana[momentOb1-1]+' '+momentObj2;
+            li.appendChild(document.createTextNode(dia));
             // icono basura
             icon2.className = 'icon2';
             icon2.innerHTML = getTrashIcon();

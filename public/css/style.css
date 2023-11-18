@@ -73,15 +73,26 @@ a {
 #liRecordBtn{
     color: red;
 }
+svg{
+    float: left;
+    margin-left: 30px;
+    margin-top: 2px;
+
+}
 
 .icon1{
+    float: left;
     cursor: pointer;
-    padding-right: 65px;
+    padding-left: 35px;
+    text-align: center;
 }
 .icon2{
-    padding-left: 65px;
+    float:right;
     cursor: pointer;
+    padding-right: 35px;
+    text-align: center;
 }
+
 .icon1:hover,
 .icon2:hover{
     fill: gray;
