@@ -19,15 +19,15 @@ class App {
     init() {
         navigator.mediaDevices.getUserMedia({audio: true})
             .then(stream => {
-                //Si damos el permiso creara el boton de record y subir
-                document.getElementById('liRecordBtn').appendChild(getRecordBtn());
-                document.getElementById('liUploadBtn').appendChild(getUploadBtn());
-
+                // Inicializar
                 this.initRecord(stream);
                 this.initAudio();
+
+                //Si damos el permiso y los metodos van bien creara el boton de record y subir
+                document.getElementById('liRecordBtn').appendChild(getRecordBtn());
+                document.getElementById('liUploadBtn').appendChild(getUploadBtn());
             })
             .catch(err => {
-                console.log("No hay permisos para grabar");
                 document.getElementById('liRecordBtn').appendChild(document.createTextNode('No hay permisos para grabar'));
             });
     }
@@ -58,10 +58,10 @@ class App {
     initRecord(s) {
         let audioChunks = [];
         this.mediaRecorder = new MediaRecorder(s);
-        mediaRecorder.ondataavailable = (event) => {
+        this.mediaRecorder.ondataavailable = (event) => {
             audioChunks.push(event.data);
         }
-        mediaRecorder.onstop = ()=> {
+        this.mediaRecorder.onstop = ()=> {
             this.blob = new Blob(audioChunks, {type: 'audio/wav'});
             this.loadBlob();
         }
@@ -96,7 +96,7 @@ class App {
     upload() {
         this.setState({uploading: true});
         /**
-         * Subir archivo al servidor aqu�
+         * Subir archivo al servidor aqui
          */
         this.setState({uploading: false});
     }
