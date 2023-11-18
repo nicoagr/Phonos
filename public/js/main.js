@@ -1,7 +1,7 @@
 import {getRecordBtn, getNextRecordIcon} from "./recordBtn.js";
 import {getPlayBtn, getStopIcon, getPlayIcon} from "./playBtn.js";
 import {getUploadBtn} from "./uploadBtn.js";
-import {formatAsTime} from "./utils/time.js";
+import {formatAsTime} from "./utils/time/time.js";
 import {getCopyIcon, getTrashIcon} from "./utils/icons.js";
 import v4 from "./utils/uuid/v4.js";
 
@@ -210,16 +210,23 @@ class App {
         listaFiles.innerHTML = "";
         this.state.files.forEach((file) => {
             // Cargar cada archivo en el servidor
+            // crear tags
             let li = document.createElement('li');
             let icon = document.createElement('span');
             let icon2 = document.createElement('span');
+            // icono copiar
             icon.className = 'icon1';
-            icon2.className = 'icon2';
             icon.innerHTML = getCopyIcon();
             li.appendChild(icon);
-            li.appendChild(document.createTextNode(file.date));
+            // texto
+            var momentObj = moment.unix(file.date);
+            momentObj.locale('es');
+            li.appendChild(document.createTextNode(momentObj.fromNow()));
+            // icono basura
+            icon2.className = 'icon2';
             icon2.innerHTML = getTrashIcon();
             li.appendChild(icon2);
+            // añadir a la lista
             listaFiles.appendChild(li);
         });
     }
@@ -231,7 +238,7 @@ window.onload = function () {
     let app = new App();
     app.init();
     document.getElementById('playBtn').addEventListener('click', () => app.playBtn());
-    fetch("/api/list")
+    fetch("/api/list/")
         .then((r) => r.json())
         .then((json) => {
             app.setState({files: json.files});
