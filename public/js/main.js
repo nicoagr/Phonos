@@ -137,7 +137,6 @@ class App {
     }
 
 
-
     secondCounter(app) {
         app.secs += 0.5;
         app.render();
@@ -174,6 +173,35 @@ class App {
             },
         );
 
+    }
+
+    deleteFile(id) {
+        const li = document.getElementById(id);
+        li.remove();
+        for (let i = 0; i < this.state.files.length; i++) {
+            let cur = this.state.files[i];
+            if (cur.filename == li.id) {
+                this.state.files.splice(i, i+1);
+                break;
+            }
+        }
+        /** ESTA ES LA LLAMADA AL API. Ahora mismo da error porque api/delete no existe
+        let uuid = li.dataset.uuid;
+        let filename = li.dataset.filename;
+        fetch('/api/delete/' + uuid + '/' + filename, {
+            method: 'DELETE',
+        })
+            .then(function (res) {
+                if (!res.ok) {
+                    throw new Error('No se puede borrar el fichero: ' + response.statusText);
+                }
+                //fila.remove();
+            })
+            .catch(function (err) {
+                console.log(err);
+            });
+
+         */
     }
 
     render() {
@@ -222,28 +250,6 @@ class App {
         }
         listaFiles.innerHTML = "";
 
-        function deleteFile(icon){
-             let fila = icon.closest("li");
-             //Hay que quitar el remove si se utiliza el endpoint
-             fila.remove();
-            // Esta es la llamada al endpoint
-            /**
-            let uuid = fila.dataset.uuid;
-            let filename = fila.dataset.filename;
-            fetch('/api/delete/' + uuid + '/' + filename, {
-                method: 'DELETE',
-            })
-                .then(function (res) {
-                    if (!res.ok) {
-                        throw new Error('No se puede borrar el fichero: ' + response.statusText);
-                    }
-                    fila.remove();
-                })
-                .catch(function (err) {
-                    console.error(err);
-                });
-             */
-        }
 
         this.state.files.forEach((file) => {
             // Cargar cada archivo en el servidor
@@ -271,8 +277,8 @@ class App {
             icon2.className = 'icon2';
             icon2.innerHTML = getTrashIcon();
             icon2.addEventListener('click', function () {
-                deleteFile(icon2);
-            });
+                this.deleteFile(li.id);
+            }.bind(this));
             li.appendChild(icon2);
             // añadir a la lista
             listaFiles.appendChild(li);
