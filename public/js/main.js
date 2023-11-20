@@ -261,11 +261,13 @@ class App {
             li.appendChild(icon);
             // texto
             moment.locale('es');
-            let momentOb1 = moment.unix(file.date).day();
-            let semana= ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-            let momentObj2 = moment.unix(file.date).format('h:mm a DD/MM/YYYY');
-            let dia = semana[momentOb1-1]+' '+momentObj2;
-            li.appendChild(document.createTextNode(dia));
+            // let momentOb1 = moment.unix(file.date).day();
+            // let semana= ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+            // let momentObj2 = moment.unix(file.date).format('h:mm a DD/MM/YYYY');
+            // let dia = semana[momentOb1-1]+' '+momentObj2;
+            // li.appendChild(document.createTextNode(dia));
+            let datestr = moment(file.date)._d.toLocaleDateString('es', {weekday: 'short', year: 'numeric', month: '2-digit', day: 'numeric', hour: 'numeric', minute: 'numeric'});
+            li.appendChild(document.createTextNode(datestr));
             // icono basura
             icon2.className = 'icon2';
             icon2.innerHTML = getTrashIcon();
