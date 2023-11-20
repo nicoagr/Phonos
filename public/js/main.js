@@ -74,7 +74,6 @@ class App {
 
     loadBlob() {
         let audioUrl = URL.createObjectURL(this.blob);
-        this.initAudio();
         this.audio.src = audioUrl;
         this.setState({audioloaded: true});
     }
@@ -164,6 +163,19 @@ class App {
         this.render();
     }
 
+    copytoClipboard(filename) {
+        let dest = window.location.origin + "/play/" + filename;
+        navigator.clipboard.writeText(dest).then(
+            () => {
+                /* clipboard successfully set */
+            },
+            () => {
+                /* clipboard write failed */
+            },
+        );
+
+    }
+
     render() {
         /**
          * Coger el objeto JSON state e interpretarlo
@@ -245,6 +257,7 @@ class App {
             // icono copiar
             icon.className = 'icon1';
             icon.innerHTML = getCopyIcon();
+            icon.addEventListener('click', () => this.copytoClipboard(file.filename));
             li.appendChild(icon);
             // texto
             moment.locale('es');
@@ -265,7 +278,6 @@ class App {
             listaFiles.appendChild(li);
         });
     }
-
 }
 
 window.onload = function () {
