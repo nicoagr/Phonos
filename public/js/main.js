@@ -45,7 +45,7 @@ class App {
                 // Render
                 this.render();
             })
-            .catch(err => {
+            .catch(() => {
                 document.getElementById('liRecordBtn').appendChild(document.createTextNode('No hay permisos para grabar'));
                 this.render();
             });
@@ -55,26 +55,21 @@ class App {
         this.audio = new Audio();
 
         this.audio.addEventListener('loadedmetadata', () => {
-            console.log("onloadedmetadata");
             this.render();
         });
         this.audio.addEventListener('durationchange', () => {
-            console.log("ondurationchange");
             this.render();
         });
         this.audio.addEventListener('timeupdate', () => {
-            console.log("ontimeupdate");
             this.render();
         });
         this.audio.addEventListener('ended', () => {
-            console.log("onended");
             this.setState({playing: false})
         });
     }
 
     loadBlob() {
-        let audioUrl = URL.createObjectURL(this.blob);
-        this.audio.src = audioUrl;
+        this.audio.src = URL.createObjectURL(this.blob);
         this.setState({audioloaded: true});
     }
 
@@ -131,7 +126,7 @@ class App {
                     uploading: false, // actualizar el estado actual
                 });
             })
-            .catch((err) => {
+            .catch(() => {
                 this.setState({error: true});
             });
     }
@@ -250,7 +245,6 @@ class App {
             // crear tags
             let li = document.createElement('li');
             let icon = document.createElement('span');
-            let p = document.createElement('p');
             let icon2 = document.createElement('span');
             // id para identificar
             li.id = file.filename;
@@ -261,11 +255,10 @@ class App {
             li.appendChild(icon);
             // texto
             moment.locale('es');
-            var momentOb1 = moment.unix(file.date).day();
-            console.log(momentOb1);
+            let momentOb1 = moment.unix(file.date).day();
             let semana= ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-            var momentObj2 = moment.unix(file.date).format('h:mm a DD/MM/YYYY');
-            var dia = semana[momentOb1-1]+' '+momentObj2;
+            let momentObj2 = moment.unix(file.date).format('h:mm a DD/MM/YYYY');
+            let dia = semana[momentOb1-1]+' '+momentObj2;
             li.appendChild(document.createTextNode(dia));
             // icono basura
             icon2.className = 'icon2';
