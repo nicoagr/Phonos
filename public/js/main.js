@@ -6,7 +6,6 @@ import {getCopyIcon, getTrashIcon} from "./utils/icons.js";
 import v4 from "./utils/uuid/v4.js";
 
 
-
 class App {
 
     audio;
@@ -257,7 +256,10 @@ class App {
             // icono copiar
             icon.className = 'icon1';
             icon.innerHTML = getCopyIcon();
-            icon.addEventListener('click', () => this.copytoClipboard(file.filename));
+            icon.addEventListener('click', () => {
+                this.copytoClipboard(file.filename)
+                Snackbar.show({text:"Se ha copiado el enlace correctamente", pos: "bottom-center", actionText: "OK"})
+            });
             li.appendChild(icon);
             // texto
             moment.locale('es');
