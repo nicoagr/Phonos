@@ -81,15 +81,14 @@ svg{
 }
 
 .icon1{
-    float: left;
     cursor: pointer;
-    padding-left: 35px;
+    padding-left: 10px;
     text-align: center;
 }
 .icon2{
     float:right;
     cursor: pointer;
-    padding-right: 35px;
+    padding-right: 15px;
     text-align: center;
 }
 

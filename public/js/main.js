@@ -191,17 +191,17 @@ class App {
                 recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(5 * 60 - this.secs);
                 recordBtn.disabled = false;
                 recordBtn.value = 'Finalizar';
+            } else if (this.state.uploading) {
+                uploadBtn.value = "Subiendo...";
+                recordBtn.disabled = true;
+                playBtn.disabled = true;
+                uploadBtn.disabled = true;
             } else if (this.state.audioloaded) {
                 recordBtn.innerHTML = 'Grabar';
                 recordBtn.disabled = false;
                 playBtn.disabled = false;
                 playBtn.innerHTML = getPlayIcon() + " Reproducir " + formatAsTime(this.audio.duration);
                 uploadBtn.disabled = false;
-            } else if (this.state.uploading) {
-                recordBtn.disabled = true;
-                playBtn.disabled = true;
-                uploadBtn.disabled = true;
-                uploadBtn.value = "Subiendo...";
             }
             if (!this.state.audioloaded) {
                 uploadBtn.disabled = true;
@@ -249,7 +249,7 @@ class App {
             var momentOb1 = moment.unix(file.date).day();
             console.log(momentOb1);
             let semana= ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-            var momentObj2 = moment.unix(file.date).format('h:mm a');
+            var momentObj2 = moment.unix(file.date).format('h:mm a DD/MM/YYYY');
             var dia = semana[momentOb1-1]+' '+momentObj2;
             li.appendChild(document.createTextNode(dia));
             // icono basura
