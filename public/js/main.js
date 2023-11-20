@@ -160,10 +160,10 @@ class App {
         let dest = window.location.origin + "/play/" + filename;
         navigator.clipboard.writeText(dest).then(
             () => {
-                /* clipboard successfully set */
+                Snackbar.show({text:"Se ha copiado el enlace correctamente", pos: "bottom-center", actionText: "OK"});
             },
             () => {
-                /* clipboard write failed */
+                Snackbar.show({text:"No se ha podido copiar", pos: "bottom-center", actionText: "OK"});
             },
         );
 
@@ -257,8 +257,8 @@ class App {
             icon.className = 'icon1';
             icon.innerHTML = getCopyIcon();
             icon.addEventListener('click', () => {
-                this.copytoClipboard(file.filename)
-                Snackbar.show({text:"Se ha copiado el enlace correctamente", pos: "bottom-center", actionText: "OK"})
+                this.copytoClipboard(file.filename);
+
             });
             li.appendChild(icon);
             // texto
