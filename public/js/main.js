@@ -240,6 +240,8 @@ class App {
             let icon = document.createElement('span');
             let p = document.createElement('p');
             let icon2 = document.createElement('span');
+            // id para identificar
+            li.id = file.filename;
             // icono copiar
             icon.className = 'icon1';
             icon.innerHTML = getCopyIcon();
