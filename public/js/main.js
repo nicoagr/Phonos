@@ -3,6 +3,7 @@ import {getPlayBtn, getStopIcon, getPlayIcon} from "./playBtn.js";
 import {getUploadBtn} from "./uploadBtn.js";
 import {formatAsTime} from "./utils/time/time.js";
 import {getCopyIcon, getTrashIcon} from "./utils/icons.js";
+import {choruseffect, roboteffect, tlfeffect} from "./utils/audio/effects.js";
 import v4 from "./utils/uuid/v4.js";
 
 
@@ -55,37 +56,13 @@ class App {
             });
     }
 
-    // initAudio() {
-    //     this.audio = new Audio();
-    //
-    //     this.audio.addEventListener('loadedmetadata', () => {
-    //         this.render();
-    //     });
-    //     this.audio.addEventListener('durationchange', () => {
-    //         this.render();
-    //     });
-    //     this.audio.addEventListener('timeupdate', () => {
-    //         this.render();
-    //     });
-    //     this.audio.addEventListener('ended', () => {
-    //         this.setState({playing: false})
-    //     });
-    // }
 
     initAudio() {
        // No tiene sentido porq habrá que crearlo cada vez que se quiera
        // escuchar el audio
     }
 
-    // loadBlob() {
-    //     this.audio.src = URL.createObjectURL(this.blob);
-    //     this.setState({audioloaded: true});
-    // }
-
     loadBlob() {
-        this.audioSource = this.audioContext.createBufferSource();
-        this.audioSource.connect(this.audioContext.destination);
-        this.audioSource.onended = () => this.setState({playing: false});
         const reader = new FileReader();
         reader.onload = async (event) => {
             const arrayBuffer = event.target.result;
@@ -121,18 +98,35 @@ class App {
         this.setState({recording: false});
     }
 
-    // playAudio() {
-    //     this.audio.play();
-    //     this.setState({playing: true});
-    // }
-    //
-    // stopAudio() {
-    //     this.audio.pause();
-    //     this.audio.currentTime = 0;
-    //     this.setState({playing: false});
-    // }
-
     playAudio() {
+        this.audioSource = this.audioContext.createBufferSource();
+        this.audioSource.onended = () => this.stopAudio();
+        const effect = document.querySelector('input[name="effect"]:checked').id;
+        let node;
+        switch (effect) {
+            case 'normal':
+                this.audioSource.disconnect();
+                this.audioSource.connect(this.audioContext.destination);
+                break;
+            case 'robot':
+                this.audioSource.disconnect();
+                node = roboteffect(this.audioContext);
+                this.audioSource.connect(node);
+                node.connect(this.audioContext.destination);
+                break;
+            case 'chorus':
+                this.audioSource.disconnect();
+                node = choruseffect(this.audioContext);
+                this.audioSource.connect(node);
+                node.connect(this.audioContext.destination);
+                break;
+            case 'tlf':
+                this.audioSource.disconnect();
+                node = tlfeffect(this.audioContext);
+                this.audioSource.connect(node);
+                node.connect(this.audioContext.destination);
+                break;
+        }
         this.audioSource.buffer = this.audioBuffer;
         this.audioSource.start();
         this.reloj = setInterval(this.secondCounter, 500, this);
