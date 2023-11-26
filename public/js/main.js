@@ -16,6 +16,10 @@ class App {
     secs;
     audioChunks;
     uuid;
+    // audiocontext api
+    audioContext;
+    audioBuffer;
+    audioSource;
 
     constructor() {
         this.blob = null;
@@ -25,6 +29,7 @@ class App {
         if (!localStorage.getItem("uuid"))
             localStorage.setItem("uuid", v4());
         this.uuid = localStorage.getItem("uuid");
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
 
     init() {
@@ -50,26 +55,44 @@ class App {
             });
     }
 
-    initAudio() {
-        this.audio = new Audio();
+    // initAudio() {
+    //     this.audio = new Audio();
+    //
+    //     this.audio.addEventListener('loadedmetadata', () => {
+    //         this.render();
+    //     });
+    //     this.audio.addEventListener('durationchange', () => {
+    //         this.render();
+    //     });
+    //     this.audio.addEventListener('timeupdate', () => {
+    //         this.render();
+    //     });
+    //     this.audio.addEventListener('ended', () => {
+    //         this.setState({playing: false})
+    //     });
+    // }
 
-        this.audio.addEventListener('loadedmetadata', () => {
-            this.render();
-        });
-        this.audio.addEventListener('durationchange', () => {
-            this.render();
-        });
-        this.audio.addEventListener('timeupdate', () => {
-            this.render();
-        });
-        this.audio.addEventListener('ended', () => {
-            this.setState({playing: false})
-        });
+    initAudio() {
+       // No tiene sentido porq habrá que crearlo cada vez que se quiera
+       // escuchar el audio
     }
 
+    // loadBlob() {
+    //     this.audio.src = URL.createObjectURL(this.blob);
+    //     this.setState({audioloaded: true});
+    // }
+
     loadBlob() {
-        this.audio.src = URL.createObjectURL(this.blob);
-        this.setState({audioloaded: true});
+        this.audioSource = this.audioContext.createBufferSource();
+        this.audioSource.connect(this.audioContext.destination);
+        this.audioSource.onended = () => this.setState({playing: false});
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const arrayBuffer = event.target.result;
+            this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+            this.setState({audioloaded: true});
+        };
+        reader.readAsArrayBuffer(this.blob);
     }
 
     initRecord(stream) {
@@ -98,14 +121,30 @@ class App {
         this.setState({recording: false});
     }
 
+    // playAudio() {
+    //     this.audio.play();
+    //     this.setState({playing: true});
+    // }
+    //
+    // stopAudio() {
+    //     this.audio.pause();
+    //     this.audio.currentTime = 0;
+    //     this.setState({playing: false});
+    // }
+
     playAudio() {
-        this.audio.play();
+        this.audioSource.buffer = this.audioBuffer;
+        this.audioSource.start();
+        this.reloj = setInterval(this.secondCounter, 500, this);
         this.setState({playing: true});
     }
 
     stopAudio() {
-        this.audio.pause();
-        this.audio.currentTime = 0;
+        if (this.state.playing) {
+            this.audioSource.stop();
+            clearInterval(this.reloj);
+            this.secs = 0;
+        }
         this.setState({playing: false});
     }
 
@@ -134,7 +173,13 @@ class App {
     secondCounter(app) {
         app.secs += 0.5;
         app.render();
-        if (app.secs > 5 * 60 * 2) app.stopRecording();
+        if (app.secs > 5 * 60 * 2) {
+            if (this.state.recording) {
+                app.stopRecording();
+            } else if (this.state.playing) {
+                app.stopAudio();
+            }
+        }
     }
 
     recordBtn() {
@@ -218,7 +263,7 @@ class App {
                 recordBtn.disabled = true;
                 uploadBtn.disabled = true;
                 playBtn.disabled = false;
-                playBtn.innerHTML = getStopIcon() + ' Parar ' + formatAsTime(this.audio.duration - this.audio.currentTime);
+                playBtn.innerHTML = getStopIcon() + ' Parar ' + formatAsTime(this.audioBuffer.duration - this.secs);
             } else if (this.state.recording) {
                 playBtn.disabled = true;
                 uploadBtn.disabled = true;
@@ -234,7 +279,7 @@ class App {
                 recordBtn.innerHTML = 'Grabar';
                 recordBtn.disabled = false;
                 playBtn.disabled = false;
-                playBtn.innerHTML = getPlayIcon() + " Reproducir " + formatAsTime(this.audio.duration);
+                playBtn.innerHTML = getPlayIcon() + " Reproducir " + formatAsTime(this.audioBuffer.duration);
                 uploadBtn.disabled = false;
             }
             if (!this.state.audioloaded) {
