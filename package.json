@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "rundevel": "cross-env \"DEBUG=phonos:*\" node ./bin/www",
+    "rundevel": "cross-env \"DEBUG=phonos:*\" nodemon ./bin/www",
     "start": "node ./bin/www"
   },
   "dependencies": {
@@ -11,7 +11,9 @@
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
+    "express-session": "^1.17.3",
     "http-errors": "~1.6.3",
+    "mongojs": "^3.1.0",
     "morgan": "~1.9.1"
   }
 }
