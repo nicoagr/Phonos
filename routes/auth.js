@@ -57,7 +57,7 @@ router.post('/login', (req, res) => {
     res.status(400).send('ERR - Faltan campos (usuario, contraseña)');
     return;
   }
-  db.users.findOne({user:{$eq:req.body.user}}, (err, user) => {
+  db.users.findOne({$or:[{user:{$eq:req.body.user}},{mail:{$eq:req.body.user}}] }, (err, user) => {
     if (err) {
       res.status(500).send('ERR - Error de base de datos');
       return;
