@@ -47,3 +47,7 @@ const db = mongojs('mongodb://127.0.0.1:27017/phonos', ['users']);
   "audios": []
 }
 ```
+Consulta Fetch para hacer un login:
+```
+fetch('auth/login', {"method":"POST","headers":{"Content-type": "application/json"}, "body":'{"user":"nico","password":"nico"}'});
+```

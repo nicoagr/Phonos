@@ -1,64 +1,69 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Phonos - Notas de Voz</title>
     <meta charset="UTF-8">
-    <link rel='stylesheet' href='/css/style.css' />
+    <link rel='stylesheet' href='/css/style.css'/>
     <link rel="stylesheet" href="/js/utils/snackbar/snackbar.css" type="text/css">
     <script src="/js/utils/time/moment.js"></script>
     <script src="/js/utils/time/moment-es.js"></script>
     <script src="/js/utils/snackbar/snackbar.min.js"></script>
     <script src="/js/main.js" type="module"></script>
-  </head>
-  <body>
-    <h1>Phonos</h1>
-    <h2>Grupo V - Sistemas Web (2023-2024)</h2>
+</head>
+<body>
+<h1>Phonos</h1>
+<h2>Grupo V - Sistemas Web (2023-2024)</h2>
 
 
-    <div id="primary">
+<div id="primary">
     <p id="apptitle">Reproductora de audio</p>
+    <% if (user) { %>
+        <hr>
+        <p>Usuario: <strong><%= user %></strong></p>
+    <% } %>
     <hr>
-      <ul id="lista">
+    <ul id="lista">
         <li id="liRecordBtn"></li>
         <li id="liPlayBtn"></li>
         <li id="liUploadBtn"></li>
-      </ul>
+    </ul>
     <hr>
-<p>Efecto de sonido</p>
-      <label for="normal" id="radiobutton">
-      <input type="radio" id="normal" name="effect" value="Normal" checked>
-      Normal
-      </label>
+    <p>Efecto de sonido</p>
+    <label for="normal" id="radiobutton">
+        <input type="radio" id="normal" name="effect" value="Normal" checked>
+        Normal
+    </label>
 
-      <label for="robot" id="radiobutton">
-      <input type="radio" id="robot" name="effect" value="robot">
-      Robot
-      </label>
+    <label for="robot" id="radiobutton">
+        <input type="radio" id="robot" name="effect" value="robot">
+        Robot
+    </label>
 
-      <label for="chorus" id="radiobutton">
-      <input type="radio" id="chorus" name="effect" value="chorus">
-      Coro
-      </label>
+    <label for="chorus" id="radiobutton">
+        <input type="radio" id="chorus" name="effect" value="chorus">
+        Coro
+    </label>
 
-      <label for="tlf" id="radiobutton">
-      <input type="radio" id="tlf" name="effect" value="tlf">
-      Teléfono
-      </label>
-      <br>
-        <br>
-    <hr>
-       <ul id="lista2">
-       </ul>
-    <hr>
-
-
-    </div>
+    <label for="tlf" id="radiobutton">
+        <input type="radio" id="tlf" name="effect" value="tlf">
+        Teléfono
+    </label>
     <br>
     <br>
+    <hr>
+    <ul id="lista2">
+    </ul>
+    <% if (user) { %>
+        <small><a href="/auth/logout">Cerrar Sesión?</a></small>
+    <% } %>
+    <hr>
+</div>
+<br>
+<br>
 
-      <p class="nombre">Nicolas Aguado</p>
-        <p class="nombre">Abraham Casas</p>
-        <p class="nombre">Asier Contreras</p>
-        <p class="nombre">Martin Ian Horsfield</p>
-  </body>
+<p class="nombre">Nicolas Aguado</p>
+<p class="nombre">Abraham Casas</p>
+<p class="nombre">Asier Contreras</p>
+<p class="nombre">Martin Ian Horsfield</p>
+</body>
 </html>
