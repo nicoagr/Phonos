@@ -185,7 +185,7 @@ router.get('/logout', (req, res) => {
 });
 
 /**
- * GOOGLE AUTHENTICATION
+ * OAUTH AUTHENTICATION
  */
 
 // Inicializar passport
@@ -193,7 +193,10 @@ router.use(passport.initialize());
 router.use(passport.session());
 passport.serializeUser((user, cb) => cb(null, user));
 passport.deserializeUser((obj, cb) => cb(null, obj));
-// Google Auth
+
+/**
+ * GOOGLE AUTH
+ */
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const GOOGLE_CLIENT_ID = '***REMOVED***';
 const GOOGLE_CLIENT_SECRET = '***REMOVED***';
@@ -212,7 +215,6 @@ passport.use(new GoogleStrategy({
 ));
 
 router.get('/google', passport.authenticate('google', {scope: ['profile', 'email']}));
-
 router.get('/google/callback', passport.authenticate('google', {failureRedirect: '/error'}),
     (req, res) => {
         // Successful authentication, redirect success.
@@ -244,6 +246,58 @@ router.get('/google/callback', passport.authenticate('google', {failureRedirect:
             res.redirect('/');
         });
 });
+
+
+/**
+ * GITHUB AUTH
+ */
+const GithubStrategy = require('passport-github').Strategy;
+const GITHUB_CLIENT_ID = '***REMOVED***';
+const GITHUB_CLIENT_SECRET = '***REMOVED***';
+passport.use(new GithubStrategy({
+        clientID: GITHUB_CLIENT_ID,
+        clientSecret: GITHUB_CLIENT_SECRET,
+        // todo OJO CAMBIAR A ***REMOVED*** cuando pase a prod
+        callbackURL: "http://127.0.0.1:" + appport + "/auth/github/callback"
+    },
+    function (accessToken, refreshToken, profile, done) {
+        userprofile = profile;
+        return done(null, userprofile);
+    }
+));
+
+router.get('/github', passport.authenticate('github', {scope: ['profile', 'email']}));
+router.get('/github/callback', passport.authenticate('github', {failureRedirect: '/error'}),
+    (req, res) => {
+        // Successful authentication, redirect success.
+        db.users.findOne({$and: [{mail: {$eq: userprofile.profileUrl}}, {authtype: {$eq:'github'}}]}, (err, resuser) => {
+            if (err) {
+                res.status(500).send('ERR - Error de base de datos al buscar el usuario');
+                return;
+            }
+            req.session.user = userprofile.displayName;
+            req.session.mail = userprofile.profileUrl;
+            req.session.authtype = 'github';
+            if (!resuser) {
+                // User not found - insert it in database
+                req.session.useraudios = [];
+                db.users.insert({
+                    user: userprofile.displayName,
+                    mail: userprofile.profileUrl,
+                    githubid: userprofile.id,
+                    authtype: 'github',
+                    audios: []
+                }, (err) => {
+                    if (err) {
+                        res.status(500).send('ERR - Error de base de datos al insertar el usuario');
+                    }});
+            } else {
+                // User found - get data
+                req.session.useraudios = resuser.audios;
+            }
+            res.redirect('/');
+        });
+    });
 
 function normalizePort(val) {
     var port = parseInt(val, 10);
