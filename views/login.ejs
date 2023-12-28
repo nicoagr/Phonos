@@ -5,13 +5,14 @@
     <meta charset="UTF-8">
     <link rel='stylesheet' href='/css/style.css'/>
     <script src="/js/auth/authLogin.js" type="module"></script>
-
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
 <h1>Phonos</h1>
 <h2>Grupo V - Sistemas Web (2023-2024)</h2>
 
-<div id="primary">
+<div class="primary">
     <p id="apptitle">Login</p>
     <hr>
     <input type="text" class="inputtxt" id="usuariotxt" placeholder="Nombre de Usuario / E-mail" required="required" />
@@ -19,6 +20,8 @@
     <input type="password" class="inputtxt" id="passtxt" placeholder="Contraseña" required="required" />
     <button style="margin-top:15px" class="boton" id="loginBtn">Iniciar Sesión</button>
     <p id="errortxt" class="rojo"></p>
+    <hr>
+    <a href="/auth/google" class="btn btn-danger"><span class="fa fa-google"></span> Entra usando Google</a>
     <hr>
     <small><a href="/auth/register">Es tu primera vez aquí?</a></small>
 </div>
