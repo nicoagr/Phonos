@@ -51,7 +51,15 @@ const db = mongojs('mongodb://127.0.0.1:27017/phonos', ['users']);
   "audios": []
 }
 ```
-Consulta Fetch para hacer un login:
+### Consulta Fetch para hacer un login:
 ```
 fetch('auth/login', {"method":"POST","headers":{"Content-type": "application/json"}, "body":'{"user":"nico","password":"nico"}'});
+```
+### Información a la hora de hacer consultas:
+
+Para que sepáis, cuando trabajéis con la base de datos, que lo que identifica únicamente al usuario es su email y su tipo de autorización, en conjunto. Es decir, con el email : nico@prueba.com puede haber dos usuarios, uno con auth tipo 'native' y otro con auth tipo 'google'. Así que, a la hora de hacer consultas a la base de datos, hacedlas siempre con el email y tipo de usuario en conjunto.
+Os he establecido variables de sesión para que siempre tengáis acceso a esos datos:
+```
+req.session.mail
+req.session.authtype
 ```

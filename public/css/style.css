@@ -79,6 +79,22 @@ li {
     color:red;
 }
 
+ .botonalreves {
+    padding: 12px;
+    width: 200px;
+    border: none;
+    border-radius: 5px;
+    font: 18px 'Trebuchet MS', sans-serif;
+    box-shadow: 2px 2px 8px darkgrey;
+    color:white;
+    background-color: #DA0035;
+ }
+.botonalreves:hover {
+    background-color: inherit;
+    cursor: pointer;
+    color:black;
+}
+
 .boton:hover,
 #playBtn:hover,
 #recordBtn:hover,

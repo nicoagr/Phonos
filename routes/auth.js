@@ -58,14 +58,14 @@ router.post('/login', (req, res) => {
         res.status(400).send('ERR - Faltan campos (usuario, contraseña)');
         return;
     }
-    db.users.findOne({$or: [{user: {$eq: req.body.user}}, {mail: {$eq: req.body.user}}]}, (err, user) => {
+    db.users.findOne({$and: [{mail: {$eq: req.body.user}}, {authtype: {$eq:'native'}}]}, (err, user) => {
         if (err) {
             res.status(500).send('ERR - Error de base de datos');
             return;
         }
         if (!user) {
             // User not found
-            res.status(401).send('ERR - Usuario no encontrado');
+            res.status(401).send('ERR - Correo electrónico no encontrado');
             return;
         }
         comparePassword(req.body.password, user.hash, (err, match) => {
@@ -82,6 +82,7 @@ router.post('/login', (req, res) => {
             req.session.user = user.user;
             req.session.authtype = user.authtype;
             req.session.useraudios = user.audios;
+            req.session.mail = user.mail;
             res.status(200).send('OK');
         });
     });
@@ -106,19 +107,14 @@ router.post('/register/step1', (req, res) => {
     if (!validator.isEmail(req.body.email)) {
         req.status(400).send('ERR - El e-mail no es válido');
     }
-    db.users.findOne({$or: [{user: {$eq: req.body.user}}, {mail: {$eq: req.body.email}}]}, (err, user) => {
+    db.users.findOne({$and: [{mail: {$eq: req.body.email}}, {authtype: {$eq:'native'}}]}, (err, user) => {
         if (err) {
             res.status(500).send('ERR - Error de base de datos');
             return;
         }
         if (user) {
             // User already exists
-            if (user.user == req.body.user)
-                res.status(409).send('ERR - Usuario ya existente');
-            else if (user.mail == req.body.email)
-                res.status(409).send('ERR - E-Mail ya utilizado por otro usuario')
-            else
-                res.status(409).send('ERR - Usuario / E-Mail ya existentes');
+            res.status(409).send('ERR - E-Mail ya utilizado por otro usuario')
             return;
         }
         // bien, generamos un codigo de 6 digitos y enviamos email
@@ -142,7 +138,7 @@ router.post('/register/step2', (req, res) => {
         // bien, insertar usuario
         db.users.insert({
             user: req.body.user,
-            email: req.body.email,
+            mail: req.body.email,
             hash: hash,
             authtype: 'native',
             audios: []
@@ -153,6 +149,7 @@ router.post('/register/step2', (req, res) => {
             }
             req.session.user = req.body.user;
             req.session.authtype = 'native';
+            req.session.mail = req.body.email;
             req.session.useraudios = [];
             res.status(200).send('OK');
         });
@@ -210,11 +207,34 @@ router.get('/google', passport.authenticate('google', {scope: ['profile', 'email
 router.get('/google/callback', passport.authenticate('google', {failureRedirect: '/error'}),
     (req, res) => {
         // Successful authentication, redirect success.
-        req.session.user = userprofile.name.givenName;
-        req.session.email = userprofile.emails[0].value;
-        req.session.authtype = userprofile.provider;
-        res.redirect('/');
-    });
+        db.users.findOne({$and: [{mail: {$eq: userprofile.emails[0].value}}, {authtype: {$eq:'google'}}]}, (err, resuser) => {
+            if (err) {
+                res.status(500).send('ERR - Error de base de datos al buscar el usuario');
+                return;
+            }
+            req.session.user = userprofile.name.givenName + " " + userprofile.name.familyName;
+            req.session.mail = userprofile.emails[0].value;
+            req.session.authtype = 'google';
+            if (!resuser) {
+                // User not found - insert it in database
+                req.session.useraudios = [];
+                db.users.insert({
+                    user: userprofile.name.givenName + " " + userprofile.name.familyName,
+                    mail: userprofile.emails[0].value,
+                    googleid: userprofile.id,
+                    authtype: 'google',
+                    audios: []
+                }, (err) => {
+                    if (err) {
+                        res.status(500).send('ERR - Error de base de datos al insertar el usuario');
+                    }});
+            } else {
+                // User found - get data
+                req.session.useraudios = resuser.audios;
+            }
+            res.redirect('/');
+        });
+});
 
 function normalizePort(val) {
     var port = parseInt(val, 10);
