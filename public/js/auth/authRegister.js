@@ -57,7 +57,10 @@ function fire2step(code) {
     step2.innerHTML= '    <p id="apptitle">Registro - Verificación</p>\n' +
         '    <hr>\n' +
         '    <p>Introduce el código que se ha enviado a tu correo electrónico</p>\n' +
-        '    <input type="password" class="inputtxt" id="codtxt" placeholder="123456" required="required" />\n' +
+        '    <input type="text" class="inputtxt" id="codtxt" placeholder="123456" required="required" />\n' +
+        '    <br>\n' +
+        '    <small>*Se ha autorrellenado el código de confirmación por motivos de implementación - En un entorno real, se hubiese enviado el correo electrónico. El código fuente ya está preparado para ello.</small>\n' +
+        '    <br>\n' +
         '    <button style="margin-top:15px;" class="boton" id="finishBtn">Completar Registro</button>\n' +
         '    <p id="errortxt" class="rojo"></p>\n' +
         '    <hr>\n' +

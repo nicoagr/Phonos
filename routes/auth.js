@@ -121,10 +121,13 @@ router.post('/register/step1', (req, res) => {
         // bien, generamos un codigo de 6 digitos y enviamos email
         let code = Math.floor(100000 + Math.random() * 900000);
         req.session.code = code;
+        req.session.tempuser = req.body.user;
+        req.session.tempmail = req.body.email;
+        req.session.temppass = req.body.password;
         // No hay dinero para un servicio de smtp y tampoco queremos
         // exponer aquí nuestras credenciales smtp privadas, asi que no
         // habrá envios de email.
-        res.send(code);
+        res.send(code.toString());
     });
 });
 router.post('/register/step2', (req, res) => {
@@ -132,19 +135,19 @@ router.post('/register/step2', (req, res) => {
         res.status(400).send('ERR - Introduce el código');
         return;
     }
-    if (req.session.code !== req.body.code) {
+    if (req.session.code.toString() !== req.body.code) {
         res.status(401).send('ERR - Código incorrecto');
         return;
     }
-    cryptPassword(req.body.password, (err, hash) => {
+    cryptPassword(req.session.temppass, (err, hash) => {
         if (err) {
             res.status(500).send('ERR - Error interno de criptografía');
             return;
         }
         // bien, insertar usuario
         db.users.insert({
-            user: req.body.user,
-            mail: req.body.email,
+            user: req.session.tempuser,
+            mail: req.session.tempmail,
             hash: hash,
             authtype: 'native',
             audios: []
@@ -153,9 +156,9 @@ router.post('/register/step2', (req, res) => {
                 res.status(500).send('ERR - Error de base de datos');
                 return;
             }
-            req.session.user = req.body.user;
+            req.session.user = req.session.tempuser;
             req.session.authtype = 'native';
-            req.session.mail = req.body.email;
+            req.session.mail = req.session.tempmail;
             req.session.useraudios = [];
             res.status(200).send('OK');
         });
@@ -163,7 +166,7 @@ router.post('/register/step2', (req, res) => {
 });
 
 /**
- * Cerar sesión : POST /auth/logout.ejs
+ * Cerar sesión : POST /auth/logout
  */
 router.post('/logout', (req, res) => {
     if (!req.session.user) {
