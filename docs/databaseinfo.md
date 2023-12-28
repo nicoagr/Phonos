@@ -11,7 +11,7 @@ Código en NodeJS - MongoJS:
 ```
 const db = mongojs('mongodb://127.0.0.1:27017/phonos', ['users']);
 ```
-### Datos estructurados de forma:
+### Datos estructurados de forma en tabla users:
 ```
 {
   "user": "nico",

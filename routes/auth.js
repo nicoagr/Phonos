@@ -105,7 +105,8 @@ router.post('/register/step1', (req, res) => {
     }
     // mail not valid
     if (!validator.isEmail(req.body.email)) {
-        req.status(400).send('ERR - El e-mail no es válido');
+        res.status(400).send('ERR - El e-mail no es válido');
+        return;
     }
     db.users.findOne({$and: [{mail: {$eq: req.body.email}}, {authtype: {$eq:'native'}}]}, (err, user) => {
         if (err) {
@@ -120,14 +121,19 @@ router.post('/register/step1', (req, res) => {
         // bien, generamos un codigo de 6 digitos y enviamos email
         let code = Math.floor(100000 + Math.random() * 900000);
         req.session.code = code;
-
-        res.status(200).send('OK - 2STEP NEEDED');
-
+        // No hay dinero para un servicio de smtp y tampoco queremos
+        // exponer aquí nuestras credenciales smtp privadas, asi que no
+        // habrá envios de email.
+        res.send(code);
     });
 });
 router.post('/register/step2', (req, res) => {
     if (!req.body.code) {
-        res.status(400).send('ERR - Faltan campos (codigo)');
+        res.status(400).send('ERR - Introduce el código');
+        return;
+    }
+    if (req.session.code !== req.body.code) {
+        res.status(401).send('ERR - Código incorrecto');
         return;
     }
     cryptPassword(req.body.password, (err, hash) => {
