@@ -55,6 +55,8 @@
     </ul>
     <% if (user) { %>
         <small><a href="/auth/logout">Cerrar Sesión?</a></small>
+    <% } else { %>
+        <a href="/auth/login">Iniciar Sesión</a>
     <% } %>
     <hr>
 </div>

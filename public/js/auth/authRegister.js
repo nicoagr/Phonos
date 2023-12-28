@@ -1,8 +1,9 @@
 window.onload = () => {
     let usutxt = document.getElementById('usuariotxt');
+    let emailtxt = document.getElementById('emailtxt');
     let passtxt = document.getElementById('passtxt');
     let errortxt = document.getElementById('errortxt');
-    let logbtn = document.getElementById('loginBtn');
+    let logbtn = document.getElementById('registerBtn');
     usutxt.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -15,11 +16,18 @@ window.onload = () => {
             logbtn.click();
         }
     });
+    emailtxt.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            logbtn.click();
+        }
+    });
     logbtn.onclick = () => {
         let usuario = {};
         usuario.user = usutxt.value;
         usuario.password = passtxt.value;
-        fetch('/auth/login', {
+        usuario.email = emailtxt.value;
+        fetch('/auth/register', {
             method: "POST",
             headers: {"Content-type": "application/json"},
             body: JSON.stringify(usuario)
@@ -27,7 +35,7 @@ window.onload = () => {
             // Check if 200, then redirect
             if (res.status !== 200) {
                 res.text().then((msg) => {
-                    errortxt.innerHTML = 'Ha habido un error al iniciar sesión!<br>' + msg;
+                    errortxt.innerHTML = 'Ha habido un error al registrarse!<br>' + msg;
                 });
                 return;
             } else {

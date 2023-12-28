@@ -87,25 +87,37 @@ router.post('/login', (req, res) => {
 });
 
 /**
- * Método principal de registro (nativo): POST /auth/register
+ * Método principal de registro (nativo): /auth/register
  */
+router.get('/register', (req, res) => {
+  if (req.session.user) {
+    res.redirect('/');
+  } else {
+    res.render('register');
+  }
+});
 router.post('/register', (req, res) => {
-  if (!req.body.user || !req.body.password || req.body.email) {
-    res.status(400).send('ERR - Faltan campos (usuario, contraseña)');
+  if (!req.body.user || !req.body.password || !req.body.email) {
+    res.status(400).send('ERR - Faltan campos (usuario, contraseña, email)');
     return;
   }
   // mail not valid
   if (!validator.isEmail(req.body.email)) {
     req.status(400).send('ERR - El e-mail no es válido');
   }
-  db.users.findOne({user:{$eq:req.body.user}}, (err, user) => {
+  db.users.findOne({$or:[{user:{$eq:req.body.user}},{mail:{$eq:req.body.email}}] }, (err, user) => {
     if (err) {
       res.status(500).send('ERR - Error de base de datos');
       return;
     }
     if (user) {
       // User already exists
-      res.status(409).send('ERR - El usuario ya existe');
+      if (user.user == req.body.user)
+        res.status(409).send('ERR - Usuario ya existente');
+      else if (user.mail == req.body.email)
+        res.status(409).send('ERR - E-Mail ya utilizado por otro usuario')
+      else
+        res.status(409).send('ERR - Usuario / E-Mail ya existentes');
       return;
     }
     cryptPassword(req.body.password, (err, hash) => {
@@ -124,7 +136,10 @@ router.post('/register', (req, res) => {
             res.status(500).send('ERR - Error de base de datos');
             return;
           }
-          res.status(200).send('OK - Registrado');
+          req.session.user = req.body.user;
+          req.session.authtype = 'native';
+          req.session.useraudios = [];
+          res.status(200).send('OK');
       });
     });
   });
