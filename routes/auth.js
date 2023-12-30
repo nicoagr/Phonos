@@ -108,6 +108,11 @@ router.post('/register/step1', (req, res) => {
         res.status(400).send('ERR - El e-mail no es válido');
         return;
     }
+    if (req.body.password.length < 4) {
+        res.status(400).send('ERR - La contraseña debe tener al menos 4 caracteres');
+        return;
+        return;
+    }
     db.users.findOne({$and: [{mail: {$eq: req.body.email}}, {authtype: {$eq:'native'}}]}, (err, user) => {
         if (err) {
             res.status(500).send('ERR - Error de base de datos');
