@@ -1,8 +1,9 @@
 body {
     padding: 50px;
-    font: 14px 'Trebuchet MS', sans-serif;
+    font: 14px 'Trebuchet MS', sans-serif;!important;
     float: none;
     text-align: center;
+    background-color: #ebebeb;
 }
 
 p {
@@ -22,7 +23,7 @@ li {
 .primary {
     margin-top: 40px;
     background-color: white;
-    padding: 10px 10px;
+    padding: 10px 10px 20px 10px;
     border-radius: 5px;
     box-shadow: 3px 3px 8px darkgrey;
     width: 340px;
@@ -58,7 +59,7 @@ li {
 
 .botonpeq {
     padding: 12px;
-    width: 200px;
+    width: 300px;
     border: none;
     border-radius: 5px;
     font: 18px 'Trebuchet MS', sans-serif;
@@ -81,7 +82,7 @@ li {
 
  .botonalreves {
     padding: 12px;
-    width: 200px;
+    width: 300px;
     border: none;
     border-radius: 5px;
     font: 18px 'Trebuchet MS', sans-serif;
@@ -114,6 +115,8 @@ li {
 
 hr {
     width: 333px;
+    margin-bottom: 15px;
+    margin-top: 15px;
 }
 
 a {
@@ -163,6 +166,7 @@ input[type=radio] {
     border-radius: 50%;
     display:inline-grid;
     place-content: center;
+
     &::before {
 
         content: "";
@@ -180,3 +184,19 @@ input[type=radio] {
     }
 }
 
+#usuariotxt, #passtxt, #emailtxt {
+    margin:10px;
+    width: 300px;
+    height: 30px;
+    border-radius: 5px;
+    border: 1px solid #a8a8a8;
+    padding: 4px;
+
+}
+
+#link{
+    color: #00B7FF;
+    text-decoration: none;
+    font-size: 16px;
+    height: 150px;
+}

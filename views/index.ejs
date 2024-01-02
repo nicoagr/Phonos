@@ -54,11 +54,12 @@
     <ul id="lista2">
     </ul>
     <% if (user) { %>
-        <small><a href="/auth/logout">Cerrar Sesión?</a></small>
+        <hr>
+        <a href="/auth/logout" id="link">Cerrar Sesión</a>
     <% } else { %>
-        <a href="/auth/login">Iniciar Sesión</a>
+        <a href="/auth/login" id="link">Iniciar Sesión</a>
     <% } %>
-    <hr>
+
 </div>
 <br>
 <br>

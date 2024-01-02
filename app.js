@@ -7,6 +7,8 @@ const session = require('express-session');
 let cors = require('cors');
 let indexRouter = require('./routes/index');
 let authRouter = require('./routes/auth');
+let listRouter = require('./routes/list');
+
 
 let app = express();
 
@@ -32,6 +34,7 @@ app.use(session(sessinfo));
 
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
+app.use('/list', listRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

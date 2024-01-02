@@ -6,7 +6,6 @@ import {getCopyIcon, getTrashIcon} from "./utils/icons.js";
 import {choruseffect, roboteffect, tlfeffect} from "./utils/audio/effects.js";
 import v4 from "./utils/uuid/v4.js";
 
-
 class App {
 
     audio;
@@ -43,7 +42,10 @@ class App {
                 //Si damos el permiso y los metodos van bien creara el boton de record y subir
                 document.getElementById('liRecordBtn').appendChild(getRecordBtn());
                 document.getElementById('liUploadBtn').appendChild(getUploadBtn());
-                document.getElementById('recordBtn').addEventListener('click', () => this.recordBtn());
+                document.getElementById('recordBtn').addEventListener('click', () => {
+                    this.recordBtn()
+
+                });
                 document.getElementById('uploadBtn').addEventListener('click', () => this.uploadBtn());
                 document.getElementById('apptitle').innerText = 'Grabadora y reproductora de audio';
 
@@ -285,6 +287,7 @@ class App {
 
 
         this.state.files.forEach((file) => {
+
             // Cargar cada archivo en el servidor
             // crear tags
             let li = document.createElement('li');
@@ -327,7 +330,7 @@ window.onload = function () {
     let app = new App();
     app.init();
     document.getElementById('playBtn').addEventListener('click', () => app.playBtn());
-    fetch("/api/list/")
+    fetch(`/list/list`)
         .then((r) => r.json())
         .then((json) => {
             app.setState({files: json.files});
