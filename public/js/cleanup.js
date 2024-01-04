@@ -2,7 +2,7 @@ const mongojs = require('mongojs');
 const db = mongojs('mongodb://***REMOVED***@***REMOVED***:27017/phonos?authSource=admin', ['users']);
 
 setInterval(() => {
-  console.log('Empezando tarea CRON');
+  console.log('Ejecutando cleanup');
 
   // Cogemos la hora actual y le restamos 5 días
   let marcadorDia = new Date();
@@ -11,7 +11,7 @@ setInterval(() => {
   // Tenemos que recorrer todos los usuarios
   db.users.find({}, (err, users) => {
     if (err) {
-      console.error("CRON: Error en BD");
+      console.error("Cleanup: Error en BD");
     } else {
       users.forEach(user => {
         // Usamos filter para quedarnos con los audios que sean más nuevos que el marcador
@@ -23,7 +23,7 @@ setInterval(() => {
         // Update the user's audios
         db.users.update({_id: user._id}, {$set: {audios: audiosViejos}}, (err) => {
           if (err) {
-            console.error("CRON: Error en BD");
+            console.error("Cleanup: Error en BD");
           }
         });
       });
