@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const mongojs = require('mongojs');
 let validator = require('validator');
 const passport = require('passport');
-const db = mongojs('mongodb://127.0.0.1:27017/phonos', ['users']);
+const db = mongojs('mongodb://***REMOVED***@***REMOVED***:27017/phonos?authSource=admin', ['users']);
 
 /**
  * CRYPTOGRAPHY REQUIRED FOR PASSWORD HASHING AND COMPARING
@@ -58,6 +58,7 @@ router.post('/login', (req, res) => {
         res.status(400).send('ERR - Faltan campos (usuario, contraseña)');
         return;
     }
+
     db.users.findOne({$and: [{mail: {$eq: req.body.user}}, {authtype: {$eq:'native'}}]}, (err, user) => {
         if (err) {
             res.status(500).send('ERR - Error de base de datos');
@@ -110,7 +111,6 @@ router.post('/register/step1', (req, res) => {
     }
     if (req.body.password.length < 4) {
         res.status(400).send('ERR - La contraseña debe tener al menos 4 caracteres');
-        return;
         return;
     }
     db.users.findOne({$and: [{mail: {$eq: req.body.email}}, {authtype: {$eq:'native'}}]}, (err, user) => {

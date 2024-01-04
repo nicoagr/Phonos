@@ -220,7 +220,6 @@ class App {
                 break;
             }
         }
-        /** ESTA ES LA LLAMADA AL API. Ahora mismo da error porque api/delete no existe
         let uuid = li.dataset.uuid;
         let filename = li.dataset.filename;
         fetch('/api/delete/' + uuid + '/' + filename, {
@@ -235,8 +234,6 @@ class App {
             .catch(function (err) {
                 console.log(err);
             });
-
-         */
     }
 
     render() {
