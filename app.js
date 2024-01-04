@@ -8,7 +8,7 @@ let cors = require('cors');
 let indexRouter = require('./routes/index');
 let authRouter = require('./routes/auth');
 let listRouter = require('./routes/list');
-
+require('./public/js/cleanup.js'); // Empieza el cleanup
 
 let app = express();
 
