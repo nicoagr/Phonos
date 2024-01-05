@@ -9,35 +9,34 @@ const multer = require('multer');
  * LIST
  */
 router.get('/list', async function (req, res) {
-    res.send({"files": await handleList(req)});
+
+        res.send({ "files": await handleList(req)});
 });
 
 let handleList = async (req) => {
     if (!req.session.user) {
         return [];
-    };
-    return db.users.findOne({ $and: [{ mail: { $eq: req.session.mail } }, { authtype: { $eq: req.session.authtype } }] }, (err, user) => {
-        if (err) {
-            // res.status(500).send("ERR - Error en la base de datos");
-            return [];
-        }
-        if (!user) {
-            // En principio siempre debería haber un usuario si está iniciada la sesión, pero
-            // dejo estas lineas por si acaso.
-            // res.status(404).send("ERR - Usuario no encontrado - Algo ha ido mal");
-            return [];
-        }
-        let listaAudios = [];
-        if (user.audios.length > 5) {
-            listaAudios = user.audios.slice(user.audios.length - 5);
-        } else if (user.audios.length > 0 && user.audios.length < 5) {
-            for (let i = user.audios.length - 1; i >= 0; i--) {
-                listaAudios.push(user.audios[i]);
+    }
+
+    return new Promise((resolve, reject) => {
+        db.users.findOne({ $and: [{ mail: { $eq: req.session.mail } }, { authtype: { $eq: req.session.authtype } }] }, (err, user) => {
+            if (err) {
+                reject("ERR - Error en la base de datos");
             }
-        }
-        return listaAudios;
+            if (!user) {
+                reject("ERR - Usuario no encontrado");
+            }
+            let listaAudios = [];
+            if (user.audios.length > 0) {
+
+                for (let i = user.audios.length - 1, count = 0; i >= 0 && count < 5; i--, count++) {
+                    listaAudios.push(user.audios[i]);
+                }
+            }
+            resolve(listaAudios);
+        });
     });
-}
+};
 
 
 /**
@@ -119,7 +118,7 @@ const strHasherCyrb53 = (str, seed = 0) => {
 /**
  * DELETE
  */
-router.post('/delete/:id', (req, res) => {
+router.delete('/delete/:id', (req, res) => {
     if (!req.session.user) {
         res.status(401).send("ERR - Login Necesario");
         return;

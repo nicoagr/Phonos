@@ -221,8 +221,8 @@ class App {
                 break;
             }
         }
-        let filename = li.dataset.filename;
-        fetch('/api/delete/' + filename, {
+        let filename = li.id;
+        fetch(`/api/delete/` + filename, {
             method: 'DELETE',
         })
             .then(function (res) {
@@ -292,7 +292,7 @@ class App {
             let icon = document.createElement('span');
             let icon2 = document.createElement('span');
             // id para identificar
-            li.id = file.filename;
+            li.id = file.id;
             // icono copiar
             icon.className = 'icon1';
             icon.innerHTML = getCopyIcon();
@@ -329,8 +329,10 @@ window.onload = function () {
     app.init();
     document.getElementById('playBtn').addEventListener('click', () => app.playBtn());
     fetch(`/api/list`)
-        .then((r) => r.json())
+        .then((r) =>
+            r.json())
         .then((json) => {
+            console.log("ficheros"+json.files)
             app.setState({files: json.files});
         });
 };
