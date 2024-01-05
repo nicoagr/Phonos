@@ -19,7 +19,10 @@
     <p id="apptitle">Reproductora de audio</p>
     <% if (user) { %>
         <hr>
-        <p>Usuario: <strong><%= user %></strong></p>
+        <p>Usuario: <strong><%= user.user %></strong>
+            <br>
+        <small><%= user.mail %></small>
+        </p>
     <% } %>
     <hr>
     <ul id="lista">
