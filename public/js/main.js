@@ -148,11 +148,14 @@ class App {
         this.setState({uploading: true});
         const body = new FormData(); // Mediante FormData podremos subir el audio al servidor
         body.append("recording", this.blob); // en el atributo recording de formData guarda el audio para su posterior subida
-        fetch("/api/upload/" + this.uuid, {
+        fetch("/api/upload/"+ this.uuid , {
             method: "POST", // usaremos el método POST para subir el audio
             body,
         })
-            .then((res) => res.json())
+            .then((res) => {
+                res.json()
+                console.log("hemos llegado")
+            })
             // el servidor, una vez recogido el audio,devolverá la lista de todos los ficheros a nombre del presente usuario (inlcuido el que se acaba de subir)
             .then((json) => {
                 this.setState({
@@ -327,7 +330,7 @@ window.onload = function () {
     let app = new App();
     app.init();
     document.getElementById('playBtn').addEventListener('click', () => app.playBtn());
-    fetch(`/list/list`)
+    fetch(`/api/list`)
         .then((r) => r.json())
         .then((json) => {
             app.setState({files: json.files});
