@@ -5,42 +5,29 @@ const db = mongojs('mongodb://***REMOVED***@***REMOVED***:27017/phonos?authSourc
 const multer = require('multer');
 
 
-
+/**
+ * LIST
+ */
 router.get('/list', async function (req, res) {
-    if (!req.session.mail) {
-        res.send({"files": []})
-    } else {
-        //console.log("Este es el resultado: \n"+await handleList(req))
-        res.send({"files": await handleList(req)})
-    }
-
+    res.send({"files": await handleList(req)});
 });
 
-router.post('/upload', function (req, res) {
-    console.log("HAS LLEGADO AL UPLOAD");
-});
-
-
-const handleList = async (req) => {
-    try {
-        const user = await new Promise((resolve, reject) => {
-            db.users.findOne({ $and: [{ mail: { $eq: req.session.mail } }, { authtype: { $eq: 'native' } }] }, (err, user) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(user);
-                }
-            });
-        });
-
-        if (!user) {
-            console.log("Usuario no encontrado");
+let handleList = async (req) => {
+    if (!req.session.user) {
+        return [];
+    };
+    return db.users.findOne({ $and: [{ mail: { $eq: req.session.mail } }, { authtype: { $eq: req.session.authtype } }] }, (err, user) => {
+        if (err) {
+            // res.status(500).send("ERR - Error en la base de datos");
             return [];
         }
-
-        console.log("Existe Usuario");
+        if (!user) {
+            // En principio siempre debería haber un usuario si está iniciada la sesión, pero
+            // dejo estas lineas por si acaso.
+            // res.status(404).send("ERR - Usuario no encontrado - Algo ha ido mal");
+            return [];
+        }
         let listaAudios = [];
-
         if (user.audios.length > 5) {
             listaAudios = user.audios.slice(user.audios.length - 5);
         } else if (user.audios.length > 0 && user.audios.length < 5) {
@@ -48,66 +35,117 @@ const handleList = async (req) => {
                 listaAudios.push(user.audios[i]);
             }
         }
-
-        console.log(listaAudios);
         return listaAudios;
-    } catch (err) {
-        console.error("Error:", err);
-        return [];
+    });
+}
+
+
+/**
+ * UPLOAD
+ */
+
+// Se ha decidido no usar MULTER. Con nuestro modelo, en dos maquinas separadas
+// del estilo aplicacion - base de datos no encaja. Nos interesa guardar los archivos en la
+// propia base de datos, no en el disco donde se ejecute la aplicacion.
+// de todas formas, aqui esta el codigo por si acaso.
+
+// // multer es un middleware - cuando lo establezcamos en la ruta,
+// // se ejecutará antes que nuestra función y nos subirá el archivo
+// const upload = multer({
+//     storage: multer.diskStorage({ // Los archivos que nos vengan desde el cliente se guardarán en el disco
+//         destination: (req, file, cb) => {
+//             cb(null, 'recordings/') // Querremos guardar los archivos en el directorio 'recordings'
+//         },
+//         // y como no hemos especificado un nombre de archivo, dame uno random (https://t.ly/BfMOF)
+//     }),
+//     limits: { fileSize: 2500000 }, // limite de tamaño de archivo en bytes
+//     fileFilter: (req, file, cb) => {
+//         if (!req.session.user) {
+//             cb('401 - ERR - Login Necesario', false); // No aceptes el archivo, login necesario
+//         } else if (file.size > 2500000) {
+//             cb('413 - ERR - Archivo muy grande', false); // No aceptes el archivo, muy grande (doble comprobacion)
+//         } else {
+//             cb(null, true); // Acepta el archivo
+//         }
+//     }
+// }).single('recording'); // 'recording' es el nombre del campo del formulario (desde donde envia el cliente)
+
+router.post('/upload', (req, res) => {
+    // En req.body.recording tenemos el archivo que nos envia el cliente codificado en base64
+    if (!req.session.user) {
+        res.status(401).send("ERR - Login Necesario");
+        return;
     }
+    let audio = {
+        id: strHasherCyrb53(req.body.recording),
+        data: req.body.recording,
+        date: Date.now()
+    }
+    req.session.useraudios.push(audio);
+    // Persist useraudios in database
+    db.users.findAndModify({
+        query: { $and: [{ mail: { $eq: req.session.mail } }, { authtype: { $eq: req.session.authtype } }] },
+        update: { $set: { audios: req.session.useraudios } },
+    }, (err) => {
+        if (err) {
+            res.status(500).send("ERR - Error en la base de datos");
+            return;
+        }
+    });
+    // return list of audios
+    res.send({"files": handleList(req)});
+});
+
+
+/**
+ * Credits to some random guy on stackoverflow
+ * https://stackoverflow.com/a/52171480
+ */
+const strHasherCyrb53 = (str, seed = 0) => {
+    let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for(let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+    h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+    h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
 };
 
-router.post('/upload/:name', (req, res, next) => {
-    console.log("HAS LLEGADO AL UPLOAD");
-    upload(req, res, async (err) => {
+/**
+ * DELETE
+ */
+router.post('/delete/:id', (req, res) => {
+    if (!req.session.user) {
+        res.status(401).send("ERR - Login Necesario");
+        return;
+    }
+    let id = req.params.id;
+    let index = req.session.useraudios.findIndex((audio) => {
+        return audio.id == id;
+    });
+    if (index == -1) {
+        res.status(404).send("ERR - Audio no pertenece al usuario");
+        return;
+    }
+    req.session.useraudios.splice(index, 1);
+    // Persist useraudios in database
+    db.users.findAndModify({
+        query: { $and: [{ mail: { $eq: req.session.mail } }, { authtype: { $eq: req.session.authtype } }] },
+        update: { $set: { audios: req.session.useraudios } },
+    }, (err) => {
         if (err) {
-            // Manejo de errores si la subida falla
-            return res.status(400).send({ error: err.message });
+            res.status(500).send("ERR - Error en la base de datos");
+            return;
         } else {
-
-            //falta hacer el push a la base de datos
-
-            return res.send({"files":handleList(req)}) // Llama a la función handleList para obtener las últimas 5 grabaciones
-            // Por ejemplo:
-            console.log('Archivo subido correctamente');
-            // Lógica para guardar metadatos y otras operaciones aquí
-            // ...
-
-            // Envía una respuesta al cliente indicando que se subió correctamente
-            res.status(200).send('Archivo subido correctamente');
+            res.status(200).send("OK");
         }
     });
 });
-
-
-
-// Configuración de multer para subir archivos
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'recordings/'); // Directorio donde se guardarán los archivos
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname); // Nombre del archivo guardado
-    }
-});
-
-//multer
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 2500000 }, // Tamaño máximo del archivo en bytes
-    fileFilter: function (req, file, cb) {
-        console.log("formato: "+file.mimetype)
-        if (file.mimetype === 'audio/ogg') {
-            // Acepta solo archivos de tipo 'audio/ogg' porque lo dice Nagore xd
-            console.log('Archivo válido')
-            cb(null, true);
-        } else {
-            console.log('Archivo no válido')
-            cb(new Error('Formato de archivo no válido. Solo se permiten archivos de audio en formato OGG.'));
-        }
-    }
-}).single('recording'); // 'recording' es el nombre del campo del formulario
-
 
 module.exports = router;
 

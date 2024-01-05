@@ -137,7 +137,7 @@ router.post('/register/step1', (req, res) => {
 });
 router.post('/register/step2', (req, res) => {
     if (!req.session.tempuser) {
-        res.status(400).send('ERR - Completa primero el paso 1 (/register/step1)');
+        res.status(428).send('ERR - Completa primero el paso 1 (/register/step1)');
         return;
     }
     if (!req.body.code) {

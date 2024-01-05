@@ -8,7 +8,6 @@ let cors = require('cors');
 
 let indexRouter = require('./routes/index');
 let authRouter = require('./routes/auth');
-//let listRouter = require('./routes/list');
 let apiRouter = require('./routes/api');
 require('./public/js/cleanup.js'); // Empieza el cleanup
 
@@ -36,7 +35,6 @@ app.use(session(sessinfo));
 
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
-//app.use('/list', listRouter);
 app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler

@@ -4,7 +4,7 @@ import {getUploadBtn} from "./uploadBtn.js";
 import {formatAsTime} from "./utils/time/time.js";
 import {getCopyIcon, getTrashIcon} from "./utils/icons.js";
 import {choruseffect, roboteffect, tlfeffect} from "./utils/audio/effects.js";
-import v4 from "./utils/uuid/v4.js";
+import {blobToBase64} from "./utils/converter.js";
 
 class App {
 
@@ -15,7 +15,6 @@ class App {
     reloj;
     secs;
     audioChunks;
-    uuid;
     // audiocontext api
     audioContext;
     audioBuffer;
@@ -26,9 +25,6 @@ class App {
         this.secs = 0;
         this.mediaRecorder = null;
         this.state = {recording: false, uploading: false, audioloaded: false, playing: false, files: [], error: false};
-        if (!localStorage.getItem("uuid"))
-            localStorage.setItem("uuid", v4());
-        this.uuid = localStorage.getItem("uuid");
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
 
@@ -146,26 +142,28 @@ class App {
 
     upload() {
         this.setState({uploading: true});
-        const body = new FormData(); // Mediante FormData podremos subir el audio al servidor
-        body.append("recording", this.blob); // en el atributo recording de formData guarda el audio para su posterior subida
-        fetch("/api/upload/"+ this.uuid , {
-            method: "POST", // usaremos el método POST para subir el audio
-            body,
-        })
-            .then((res) => {
-                res.json()
-                console.log("hemos llegado")
+        // transformamos nuestro blob a base 64
+        blobToBase64(this.blob).then((base64audio) => {
+            fetch("/api/upload/", {
+                method: "POST", // usaremos el método POST para subir el audio
+                headers: {"Content-type": "application/json"},
+                body: JSON.stringify({recording: base64audio}), // el audio en base64
             })
-            // el servidor, una vez recogido el audio,devolverá la lista de todos los ficheros a nombre del presente usuario (inlcuido el que se acaba de subir)
-            .then((json) => {
-                this.setState({
-                    files: json.files, // todos los ficheros del usuario
-                    uploading: false, // actualizar el estado actual
+                .then((res) => {
+                    res.json()
+                    console.log("hemos llegado")
+                })
+                // el servidor, una vez recogido el audio,devolverá la lista de todos los ficheros a nombre del presente usuario (inlcuido el que se acaba de subir)
+                .then((json) => {
+                    this.setState({
+                        files: json.files, // todos los ficheros del usuario
+                        uploading: false, // actualizar el estado actual
+                    });
+                })
+                .catch(() => {
+                    this.setState({error: true});
                 });
-            })
-            .catch(() => {
-                this.setState({error: true});
-            });
+        });
     }
 
 
@@ -223,9 +221,8 @@ class App {
                 break;
             }
         }
-        let uuid = li.dataset.uuid;
         let filename = li.dataset.filename;
-        fetch('/api/delete/' + uuid + '/' + filename, {
+        fetch('/api/delete/' + filename, {
             method: 'DELETE',
         })
             .then(function (res) {
@@ -285,7 +282,8 @@ class App {
         }
         listaFiles.innerHTML = "";
 
-
+        // If the user has files, show them
+        if (this.state.files)
         this.state.files.forEach((file) => {
 
             // Cargar cada archivo en el servidor

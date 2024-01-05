@@ -21,11 +21,13 @@ const db = mongojs('mongodb://127.0.0.1:27017/phonos', ['users']);
   "audios": [
 	{
 	  "id": "iiii",
-	  "data": "dddd"
+	  "data": "dddd",
+	  "date": 1704453108
 	},
 	{
 	  "id": "ooooo",
-	  "data": "uuuuu"
+	  "data": "uuuuu",
+	  "date": 1704453394
 	}
   ]
 },
