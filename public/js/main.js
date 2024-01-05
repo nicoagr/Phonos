@@ -56,8 +56,8 @@ class App {
 
 
     initAudio() {
-       // No tiene sentido porq habrá que crearlo cada vez que se quiera
-       // escuchar el audio
+        // No tiene sentido porq habrá que crearlo cada vez que se quiera
+        // escuchar el audio
     }
 
     loadBlob() {
@@ -198,14 +198,14 @@ class App {
         this.render();
     }
 
-    copytoClipboard(filename) {
-        let dest = window.location.origin + "/play/" + filename;
+    copytoClipboard(fileID) {
+        let dest = window.location.origin + "/api/play/" + fileID;
         navigator.clipboard.writeText(dest).then(
             () => {
-                Snackbar.show({text:"Se ha copiado el enlace correctamente", pos: "bottom-center", actionText: "OK"});
+                Snackbar.show({text: "Se ha copiado el enlace correctamente", pos: "bottom-center", actionText: "OK"});
             },
             () => {
-                Snackbar.show({text:"No se ha podido copiar", pos: "bottom-center", actionText: "OK"});
+                Snackbar.show({text: "No se ha podido copiar", pos: "bottom-center", actionText: "OK"});
             },
         );
 
@@ -217,7 +217,7 @@ class App {
         for (let i = 0; i < this.state.files.length; i++) {
             let cur = this.state.files[i];
             if (cur.filename == li.id) {
-                this.state.files.splice(i, i+1);
+                this.state.files.splice(i, i + 1);
                 break;
             }
         }
@@ -284,42 +284,49 @@ class App {
 
         // If the user has files, show them
         if (this.state.files)
-        this.state.files.forEach((file) => {
+            this.state.files.forEach((file) => {
 
-            // Cargar cada archivo en el servidor
-            // crear tags
-            let li = document.createElement('li');
-            let icon = document.createElement('span');
-            let icon2 = document.createElement('span');
-            // id para identificar
-            li.id = file.id;
-            // icono copiar
-            icon.className = 'icon1';
-            icon.innerHTML = getCopyIcon();
-            icon.addEventListener('click', () => {
-                this.copytoClipboard(file.filename);
+                // Cargar cada archivo en el servidor
+                // crear tags
+                let li = document.createElement('li');
+                let icon = document.createElement('span');
+                let icon2 = document.createElement('span');
+                // id para identificar
+                li.id = file.id;
+                // icono copiar
+                icon.className = 'icon1';
+                icon.innerHTML = getCopyIcon();
+                icon.addEventListener('click', () => {
+                    this.copytoClipboard(file.id);
 
+                });
+                li.appendChild(icon);
+                // texto
+                moment.locale('es');
+                // let momentOb1 = moment.unix(file.date).day();
+                // let semana= ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+                // let momentObj2 = moment.unix(file.date).format('h:mm a DD/MM/YYYY');
+                // let dia = semana[momentOb1-1]+' '+momentObj2;
+                // li.appendChild(document.createTextNode(dia));
+                let datestr = moment(file.date)._d.toLocaleDateString('es', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric'
+                });
+                li.appendChild(document.createTextNode(datestr));
+                // icono basura
+                icon2.className = 'icon2';
+                icon2.innerHTML = getTrashIcon();
+                icon2.addEventListener('click', function () {
+                    this.deleteFile(li.id);
+                }.bind(this));
+                li.appendChild(icon2);
+                // añadir a la lista
+                listaFiles.appendChild(li);
             });
-            li.appendChild(icon);
-            // texto
-            moment.locale('es');
-            // let momentOb1 = moment.unix(file.date).day();
-            // let semana= ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-            // let momentObj2 = moment.unix(file.date).format('h:mm a DD/MM/YYYY');
-            // let dia = semana[momentOb1-1]+' '+momentObj2;
-            // li.appendChild(document.createTextNode(dia));
-            let datestr = moment(file.date)._d.toLocaleDateString('es', {weekday: 'short', year: 'numeric', month: '2-digit', day: 'numeric', hour: 'numeric', minute: 'numeric'});
-            li.appendChild(document.createTextNode(datestr));
-            // icono basura
-            icon2.className = 'icon2';
-            icon2.innerHTML = getTrashIcon();
-            icon2.addEventListener('click', function () {
-                this.deleteFile(li.id);
-            }.bind(this));
-            li.appendChild(icon2);
-            // añadir a la lista
-            listaFiles.appendChild(li);
-        });
     }
 }
 
@@ -332,7 +339,7 @@ window.onload = function () {
         .then((r) =>
             r.json())
         .then((json) => {
-            console.log("ficheros"+json.files)
+            console.log("ficheros" + json.files)
             app.setState({files: json.files});
         });
 };

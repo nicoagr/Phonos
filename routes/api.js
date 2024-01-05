@@ -10,7 +10,7 @@ const multer = require('multer');
  */
 router.get('/list', async function (req, res) {
 
-        res.send({ "files": await handleList(req)});
+    res.send({"files": await handleList(req)});
 });
 
 let handleList = async (req) => {
@@ -19,7 +19,7 @@ let handleList = async (req) => {
     }
 
     return new Promise((resolve, reject) => {
-        db.users.findOne({ $and: [{ mail: { $eq: req.session.mail } }, { authtype: { $eq: req.session.authtype } }] }, (err, user) => {
+        db.users.findOne({$and: [{mail: {$eq: req.session.mail}}, {authtype: {$eq: req.session.authtype}}]}, (err, user) => {
             if (err) {
                 reject("ERR - Error en la base de datos");
             }
@@ -83,8 +83,8 @@ router.post('/upload', (req, res) => {
     req.session.useraudios.push(audio);
     // Persist useraudios in database
     db.users.findAndModify({
-        query: { $and: [{ mail: { $eq: req.session.mail } }, { authtype: { $eq: req.session.authtype } }] },
-        update: { $set: { audios: req.session.useraudios } },
+        query: {$and: [{mail: {$eq: req.session.mail}}, {authtype: {$eq: req.session.authtype}}]},
+        update: {$set: {audios: req.session.useraudios}},
     }, (err) => {
         if (err) {
             res.status(500).send("ERR - Error en la base de datos");
@@ -102,14 +102,14 @@ router.post('/upload', (req, res) => {
  */
 const strHasherCyrb53 = (str, seed = 0) => {
     let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-    for(let i = 0, ch; i < str.length; i++) {
+    for (let i = 0, ch; i < str.length; i++) {
         ch = str.charCodeAt(i);
         h1 = Math.imul(h1 ^ ch, 2654435761);
         h2 = Math.imul(h2 ^ ch, 1597334677);
     }
-    h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
     h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-    h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
     h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
 
     return 4294967296 * (2097151 & h2) + (h1 >>> 0);
@@ -134,8 +134,8 @@ router.delete('/delete/:id', (req, res) => {
     req.session.useraudios.splice(index, 1);
     // Persist useraudios in database
     db.users.findAndModify({
-        query: { $and: [{ mail: { $eq: req.session.mail } }, { authtype: { $eq: req.session.authtype } }] },
-        update: { $set: { audios: req.session.useraudios } },
+        query: {$and: [{mail: {$eq: req.session.mail}}, {authtype: {$eq: req.session.authtype}}]},
+        update: {$set: {audios: req.session.useraudios}},
     }, (err) => {
         if (err) {
             res.status(500).send("ERR - Error en la base de datos");
@@ -145,6 +145,28 @@ router.delete('/delete/:id', (req, res) => {
         }
     });
 });
+/**
+ * PLAY
+ */
+router.get('/play/:fileID', (req, res, next) => {
+    const audioId = req.params.fileID;
+    db.users.findOne(
+        {'audios.id': parseFloat(audioId)},
+        {'audios.$': 1, user: 1},
+        (err, user) => {
+            if (err) {
+                res.status(500).send('Error fetching audio.');
+            } else {
+                if (user != null && user.audios != null && user.audios.length > 0) {
+                    const audioData = user.audios[0]
+                    res.render('reproductor',{audioData})
+                } else {
+                    res.status(404).send('Audio not found.');
+                }
+            }
+        }
+    );
+})
 
 module.exports = router;
 
