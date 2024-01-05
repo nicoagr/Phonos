@@ -1,7 +1,7 @@
 let express = require('express');
 let router = express.Router();
 const mongojs = require('mongojs');
-const db = mongojs('mongodb://127.0.0.1:27017/phonos', ['users']);
+const db = mongojs('mongodb://***REMOVED***@***REMOVED***:27017/phonos?authSource=admin', ['users']);
 const multer = require('multer');
 
 
