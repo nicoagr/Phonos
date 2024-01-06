@@ -135,8 +135,11 @@ svg{
 .icon1{
     float: left;
     cursor: pointer;
-    padding-left: 10px;
     text-align: center;
+}
+
+.icon1 svg{
+   margin-left: 10px;
 }
 .icon2{
     float:right;
