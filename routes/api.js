@@ -28,7 +28,6 @@ let handleList = async (req) => {
             }
             let listaAudios = [];
             if (user.audios.length > 0) {
-
                 for (let i = user.audios.length - 1, count = 0; i >= 0 && count < 5; i--, count++) {
                     listaAudios.push(user.audios[i]);
                 }
@@ -69,7 +68,7 @@ let handleList = async (req) => {
 //     }
 // }).single('recording'); // 'recording' es el nombre del campo del formulario (desde donde envia el cliente)
 
-router.post('/upload', (req, res) => {
+router.post('/upload', async (req, res) => {
     // En req.body.recording tenemos el archivo que nos envia el cliente codificado en base64
     if (!req.session.user) {
         res.status(401).send("ERR - Login Necesario");
@@ -83,17 +82,18 @@ router.post('/upload', (req, res) => {
     req.session.useraudios.push(audio);
     // Persist useraudios in database
     db.users.findAndModify({
-        query: {$and: [{mail: {$eq: req.session.mail}}, {authtype: {$eq: req.session.authtype}}]},
-        update: {$set: {audios: req.session.useraudios}},
-    }, (err) => {
+        query: { $and: [{ mail: { $eq: req.session.mail } }, { authtype: { $eq: req.session.authtype } }] },
+        update: { $set: { audios: req.session.useraudios } },
+    }, async (err) => {
         if (err) {
             res.status(500).send("ERR - Error en la base de datos");
-            return;
         }
+        res.send({"files": await handleList(req)});
+
     });
     // return list of audios
-    res.send({"files": handleList(req)});
 });
+
 
 
 /**
@@ -118,7 +118,8 @@ const strHasherCyrb53 = (str, seed = 0) => {
 /**
  * DELETE
  */
-router.delete('/delete/:id', (req, res) => {
+
+router.delete('/delete/:id', async(req, res) => {
     if (!req.session.user) {
         res.status(401).send("ERR - Login Necesario");
         return;
@@ -136,12 +137,13 @@ router.delete('/delete/:id', (req, res) => {
     db.users.findAndModify({
         query: {$and: [{mail: {$eq: req.session.mail}}, {authtype: {$eq: req.session.authtype}}]},
         update: {$set: {audios: req.session.useraudios}},
-    }, (err) => {
+    }, async (err) => {
         if (err) {
             res.status(500).send("ERR - Error en la base de datos");
             return;
         } else {
-            res.status(200).send("OK");
+            res.send({"files": await handleList(req)});
+
         }
     });
 });
