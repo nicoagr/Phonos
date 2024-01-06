@@ -24,7 +24,7 @@ class App {
         this.blob = null;
         this.secs = 0;
         this.mediaRecorder = null;
-        this.state = {recording: false, uploading: false, audioloaded: false, playing: false, files: [], error: false};
+        this.state = {recording: false, uploading: false, audioloaded: false, playing: false, files: [], error: false, uploaded: false};
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
 
@@ -148,20 +148,27 @@ class App {
                 method: "POST", // usaremos el método POST para subir el audio
                 headers: {"Content-type": "application/json"},
                 body: JSON.stringify({recording: base64audio}), // el audio en base64
+            }).then((res) => {
+                if (!res.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return res.json();
             })
-                .then((res) => {
-                    res.json()
-                    console.log("hemos llegado")
+                .then((data) => {
+                    // Verificar que 'data' tiene la propiedad 'files'
+                    if (data && data.files) {
+                        console.log("Archivos recibidos:", data.files);
+                        this.setState({ files: data.files});
+                        this.setState({uploaded: true})
+                        this.setState({uploading: false})
+                    } else {
+                        console.error("La respuesta del servidor no contiene la lista de archivos esperada.");
+                        // Realiza acciones para manejar la falta de 'files' en la respuesta del servidor
+                    }
                 })
-                // el servidor, una vez recogido el audio,devolverá la lista de todos los ficheros a nombre del presente usuario (inlcuido el que se acaba de subir)
-                .then((json) => {
-                    this.setState({
-                        files: json.files, // todos los ficheros del usuario
-                        uploading: false, // actualizar el estado actual
-                    });
-                })
-                .catch(() => {
-                    this.setState({error: true});
+                .catch((error) => {
+                    console.error("Error en la solicitud:", error);
+                    // Realiza acciones para manejar el error de la solicitud fetch
                 });
         });
     }
@@ -180,8 +187,12 @@ class App {
     }
 
     recordBtn() {
-        if (!this.state.recording) this.record();
-        else this.stopRecording();
+        if (!this.state.recording) {
+            this.record();
+        } else {
+            this.stopRecording();
+        }
+
     }
 
     playBtn() {
@@ -224,7 +235,34 @@ class App {
         let filename = li.id;
         fetch(`/api/delete/` + filename, {
             method: 'DELETE',
+        }).then((res) => {
+            if (!res.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return res.json();
         })
+            .then((data) => {
+                // Verificar que 'data' tiene la propiedad 'files'
+                if (data && data.files) {
+                    console.log("Archivos recibidos:", data.files);
+                    this.setState({ files: data.files});
+                    this.setState({uploaded: true})
+
+                    this.render();
+                } else {
+                    console.error("La respuesta del servidor no contiene la lista de archivos esperada.");
+                    // Realiza acciones para manejar la falta de 'files' en la respuesta del servidor
+                }
+            })
+            .catch((error) => {
+                console.error("Error en la solicitud:", error);
+                // Realiza acciones para manejar el error de la solicitud fetch
+            });
+
+}
+
+
+        /*
             .then(function (res) {
                 if (!res.ok) {
                     throw new Error('No se puede borrar el fichero: ' + response.statusText);
@@ -235,7 +273,7 @@ class App {
                 console.log(err);
             });
     }
-
+*/
     render() {
         /**
          * Coger el objeto JSON state e interpretarlo
@@ -267,6 +305,12 @@ class App {
                 uploadBtn.value = "Subiendo...";
                 recordBtn.disabled = true;
                 playBtn.disabled = true;
+                uploadBtn.disabled = true;
+            }else if (this.state.uploaded) {
+                uploadBtn.value = "Subir";
+                recordBtn.disabled = false;
+                playBtn.disabled = true;
+                playBtn.innerHTML =  "Reproducir";
                 uploadBtn.disabled = true;
             } else if (this.state.audioloaded) {
                 recordBtn.innerHTML = 'Grabar';
