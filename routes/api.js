@@ -160,8 +160,8 @@ router.get('/play/:fileID', (req, res, next) => {
                 res.status(500).send('Error fetching audio.');
             } else {
                 if (user != null && user.audios != null && user.audios.length > 0) {
-                    const audioData = user.audios[0]
-                    res.render('reproductor',{audioData})
+                    const audioData = user.audios[0];
+                    res.send(audioData);
                 } else {
                     res.status(404).send('Audio not found.');
                 }

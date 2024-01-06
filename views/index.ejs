@@ -19,10 +19,17 @@
     <p id="apptitle">Reproductora de audio</p>
     <% if (user) { %>
         <hr>
-        <p>Usuario: <strong><%= user.user %></strong>
+        <% if (!share) {%>
+        <p>Usuario:
+            <strong><%= user.user %></strong>
             <br>
         <small><%= user.mail %></small>
         </p>
+        <% } else {%>
+        <p>Audio Compartido por
+            <br>
+            <small><%= user.user %></small>
+        <% } %>
     <% } %>
     <hr>
     <ul id="lista">
@@ -53,6 +60,7 @@
     </label>
     <br>
     <br>
+    <% if (!share) { %>
     <hr>
     <ul id="lista2">
     </ul>
@@ -61,6 +69,7 @@
         <a href="/auth/logout" id="link">Cerrar Sesión</a>
     <% } else { %>
         <a href="/auth/login" id="link">Iniciar Sesión</a>
+    <% } %>
     <% } %>
 
 </div>

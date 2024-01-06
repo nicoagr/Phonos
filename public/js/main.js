@@ -28,30 +28,34 @@ class App {
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
 
-    init() {
-        navigator.mediaDevices.getUserMedia({audio: true})
-            .then(stream => {
-                // Inicializar
-                this.initRecord(stream);
-                this.initAudio();
+    init(recording = true) {
+        if (recording)
+            navigator.mediaDevices.getUserMedia({audio: true})
+                .then(stream => {
+                    // Inicializar
+                    this.initRecord(stream);
+                    this.initAudio();
 
-                //Si damos el permiso y los metodos van bien creara el boton de record y subir
-                document.getElementById('liRecordBtn').appendChild(getRecordBtn());
-                document.getElementById('liUploadBtn').appendChild(getUploadBtn());
-                document.getElementById('recordBtn').addEventListener('click', () => {
-                    this.recordBtn()
+                    //Si damos el permiso y los metodos van bien creara el boton de record y subir
+                    document.getElementById('liRecordBtn').appendChild(getRecordBtn());
+                    document.getElementById('liUploadBtn').appendChild(getUploadBtn());
+                    document.getElementById('recordBtn').addEventListener('click', () => {
+                        this.recordBtn()
 
+                    });
+                    document.getElementById('uploadBtn').addEventListener('click', () => this.uploadBtn());
+                    document.getElementById('apptitle').innerText = 'Grabadora y reproductora de audio';
+
+                    // Render
+                    this.render();
+                })
+                .catch(() => {
+                    document.getElementById('liRecordBtn').appendChild(document.createTextNode('No hay permisos para grabar'));
+                    this.render();
                 });
-                document.getElementById('uploadBtn').addEventListener('click', () => this.uploadBtn());
-                document.getElementById('apptitle').innerText = 'Grabadora y reproductora de audio';
-
-                // Render
-                this.render();
-            })
-            .catch(() => {
-                document.getElementById('liRecordBtn').appendChild(document.createTextNode('No hay permisos para grabar'));
-                this.render();
-            });
+        else {
+            this.initAudio();
+        }
     }
 
 
@@ -210,7 +214,7 @@ class App {
     }
 
     copytoClipboard(fileID) {
-        let dest = window.location.origin + "/api/play/" + fileID;
+        let dest = window.location.origin + "/share/" + fileID;
         navigator.clipboard.writeText(dest).then(
             () => {
                 Snackbar.show({text: "Se ha copiado el enlace correctamente", pos: "bottom-center", actionText: "OK"});
@@ -280,51 +284,51 @@ class App {
          * Si estamos playing, actualizar los segundos y cambiar el titulo a pause
          * etc..
          */
-        let playBtn = document.getElementById('playBtn');
-        let uploadBtn = document.getElementById('uploadBtn');
-        let recordBtn = document.getElementById('recordBtn');
+        let playBtn = document.getElementById('playBtn') || document.createElement('button');
+        let uploadBtn = document.getElementById('uploadBtn') || document.createElement('button');
+        let recordBtn = document.getElementById('recordBtn') || document.createElement('button');
         let listaFiles = document.getElementById('lista2');
-        if (playBtn != null && uploadBtn != null && recordBtn != null) {
-            if (this.state.error) {
-                recordBtn.disabled = true;
-                playBtn.disabled = true;
-                uploadBtn.disabled = true;
-                console.log("Error");
-            } else if (this.state.playing) {
-                recordBtn.disabled = true;
-                uploadBtn.disabled = true;
-                playBtn.disabled = false;
-                playBtn.innerHTML = getStopIcon() + ' Parar ' + formatAsTime(this.audioBuffer.duration - this.secs);
-            } else if (this.state.recording) {
-                playBtn.disabled = true;
-                uploadBtn.disabled = true;
-                recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(5 * 60 - this.secs);
-                recordBtn.disabled = false;
-                recordBtn.value = 'Finalizar';
-            } else if (this.state.uploading) {
-                uploadBtn.value = "Subiendo...";
-                recordBtn.disabled = true;
-                playBtn.disabled = true;
-                uploadBtn.disabled = true;
-            }else if (this.state.uploaded) {
-                uploadBtn.value = "Subir";
-                recordBtn.disabled = false;
-                playBtn.disabled = true;
-                playBtn.innerHTML =  "Reproducir";
-                uploadBtn.disabled = true;
-            } else if (this.state.audioloaded) {
-                recordBtn.innerHTML = 'Grabar';
-                recordBtn.disabled = false;
-                playBtn.disabled = false;
-                playBtn.innerHTML = getPlayIcon() + " Reproducir " + formatAsTime(this.audioBuffer.duration);
-                uploadBtn.disabled = false;
-            }
-            if (!this.state.audioloaded) {
-                uploadBtn.disabled = true;
-                playBtn.disabled = true;
-            }
+        if (this.state.error) {
+            recordBtn.disabled = true;
+            playBtn.disabled = true;
+            uploadBtn.disabled = true;
+            console.log("Error");
+        } else if (this.state.playing) {
+            recordBtn.disabled = true;
+            uploadBtn.disabled = true;
+            playBtn.disabled = false;
+            playBtn.innerHTML = getStopIcon() + ' Parar ' + formatAsTime(this.audioBuffer.duration - this.secs);
+        } else if (this.state.recording) {
+            playBtn.disabled = true;
+            uploadBtn.disabled = true;
+            recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(5 * 60 - this.secs);
+            recordBtn.disabled = false;
+            recordBtn.value = 'Finalizar';
+        } else if (this.state.uploading) {
+            uploadBtn.value = "Subiendo...";
+            recordBtn.disabled = true;
+            playBtn.disabled = true;
+            uploadBtn.disabled = true;
+        }else if (this.state.uploaded) {
+            uploadBtn.value = "Subir";
+            recordBtn.disabled = false;
+            playBtn.disabled = true;
+            playBtn.innerHTML =  "Reproducir";
+            uploadBtn.disabled = true;
+        } else if (this.state.audioloaded) {
+            recordBtn.innerHTML = 'Grabar';
+            recordBtn.disabled = false;
+            playBtn.disabled = false;
+            playBtn.innerHTML = getPlayIcon() + " Reproducir " + formatAsTime(this.audioBuffer.duration);
+            uploadBtn.disabled = false;
         }
-        listaFiles.innerHTML = "";
+        if (!this.state.audioloaded) {
+            uploadBtn.disabled = true;
+            playBtn.disabled = true;
+        }
+
+        if (listaFiles)
+            listaFiles.innerHTML = "";
 
         // If the user has files, show them
         if (this.state.files)
@@ -375,15 +379,36 @@ class App {
 }
 
 window.onload = function () {
+    // Detectar si link es de reproduccion
+    let recording = window.location.pathname.indexOf("/share/") === -1;
     document.getElementById('liPlayBtn').appendChild(getPlayBtn());
     let app = new App();
-    app.init();
-    document.getElementById('playBtn').addEventListener('click', () => app.playBtn());
-    fetch(`/api/list`)
-        .then((r) =>
-            r.json())
-        .then((json) => {
-            console.log("ficheros" + json.files)
-            app.setState({files: json.files});
-        });
+    app.init(recording);
+    const playBtn = document.getElementById('playBtn');
+    playBtn.addEventListener('click', () => app.playBtn());
+    if (recording){
+        fetch(`/api/list`)
+            .then((r) =>
+                r.json())
+            .then((json) => {
+                console.log("ficheros" + json.files)
+                app.setState({files: json.files});
+            });
+    } else {
+        let id = window.location.pathname.split("/").pop();
+        playBtn.innerHTML = "Cargando...";
+        fetch(`/api/play/` + id)
+            .then((r) =>
+                r.json())
+            .then((json) => {
+                // decode base64 string in json.data
+                fetch(`data:audio;base64,${json.data}`)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        app.blob = blob;
+                        app.loadBlob();
+                    });
+            });
+    }
+
 };

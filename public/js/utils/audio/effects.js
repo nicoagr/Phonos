@@ -30,7 +30,7 @@ let roboteffect = function(audioContext) {
 
 let choruseffect = function(audioContext) {
     let convolver = audioContext.createConvolver();
-    fetch('js/utils/audio/chorus.wav')
+    fetch(window.location.origin + '/js/utils/audio/chorus.wav')
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
         .then(audioBuffer => {
@@ -42,7 +42,7 @@ let choruseffect = function(audioContext) {
 
 let tlfeffect = function(audioContext) {
     let convolver = audioContext.createConvolver();
-    fetch('js/utils/audio/telephone.wav')
+    fetch(window.location.origin + '/js/utils/audio/telephone.wav')
         .then(response => response.arrayBuffer())
         .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
         .then(audioBuffer => {

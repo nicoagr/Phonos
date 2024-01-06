@@ -4,6 +4,7 @@ function getPlayBtn() {
     btn.id = 'playBtn';
     btn.className = 'boton';
     btn.innerHTML = 'Reproducir';
+    btn.disabled = true;
     return btn;
 }
 
