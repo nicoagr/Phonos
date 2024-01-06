@@ -2,7 +2,7 @@ import {getRecordBtn, getNextRecordIcon} from "./recordBtn.js";
 import {getPlayBtn, getStopIcon, getPlayIcon} from "./playBtn.js";
 import {getUploadBtn} from "./uploadBtn.js";
 import {formatAsTime} from "./utils/time/time.js";
-import {getCopyIcon, getTrashIcon} from "./utils/icons.js";
+import {getCloudDownloadIcon, getCopyIcon, getTrashIcon} from "./utils/icons.js";
 import {choruseffect, roboteffect, tlfeffect} from "./utils/audio/effects.js";
 import {blobToBase64} from "./utils/converter.js";
 
@@ -263,21 +263,25 @@ class App {
                 // Realiza acciones para manejar el error de la solicitud fetch
             });
 
-}
+    }
 
-
-        /*
-            .then(function (res) {
-                if (!res.ok) {
-                    throw new Error('No se puede borrar el fichero: ' + response.statusText);
-                }
-                //fila.remove();
-            })
-            .catch(function (err) {
-                console.log(err);
+    loadAudioFromServer(fileID) {
+        let playBtn = document.getElementById('playBtn') || document.createElement('button');
+        playBtn.innerHTML = "Cargando...";
+        fetch(`/api/play/` + fileID)
+            .then((r) =>
+                r.json())
+            .then((json) => {
+                // decode base64 string in json.data
+                fetch(`data:audio;base64,${json.data}`)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        this.blob = blob;
+                        this.loadBlob();
+                    });
             });
     }
-*/
+
     render() {
         /**
          * Coger el objeto JSON state e interpretarlo
@@ -287,44 +291,53 @@ class App {
         let playBtn = document.getElementById('playBtn') || document.createElement('button');
         let uploadBtn = document.getElementById('uploadBtn') || document.createElement('button');
         let recordBtn = document.getElementById('recordBtn') || document.createElement('button');
+        let radioBtns = document.getElementsByName('effect');
         let listaFiles = document.getElementById('lista2');
         if (this.state.error) {
             recordBtn.disabled = true;
             playBtn.disabled = true;
             uploadBtn.disabled = true;
+            radioBtns.forEach((btn) => btn.disabled = true);
             console.log("Error");
         } else if (this.state.playing) {
             recordBtn.disabled = true;
             uploadBtn.disabled = true;
             playBtn.disabled = false;
+            radioBtns.forEach((btn) => btn.disabled = true);
             playBtn.innerHTML = getStopIcon() + ' Parar ' + formatAsTime(this.audioBuffer.duration - this.secs);
         } else if (this.state.recording) {
             playBtn.disabled = true;
             uploadBtn.disabled = true;
             recordBtn.innerHTML = getNextRecordIcon() + ' Parar Grabación ' + formatAsTime(5 * 60 - this.secs);
             recordBtn.disabled = false;
+            radioBtns.forEach((btn) => btn.disabled = true);
             recordBtn.value = 'Finalizar';
         } else if (this.state.uploading) {
             uploadBtn.value = "Subiendo...";
             recordBtn.disabled = true;
             playBtn.disabled = true;
             uploadBtn.disabled = true;
+            radioBtns.forEach((btn) => btn.disabled = true);
         }else if (this.state.uploaded) {
             uploadBtn.value = "Subir";
             recordBtn.disabled = false;
             playBtn.disabled = true;
             playBtn.innerHTML =  "Reproducir";
             uploadBtn.disabled = true;
+            radioBtns.forEach((btn) => btn.disabled = false);
+
         } else if (this.state.audioloaded) {
             recordBtn.innerHTML = 'Grabar';
             recordBtn.disabled = false;
             playBtn.disabled = false;
+            radioBtns.forEach((btn) => btn.disabled = false);
             playBtn.innerHTML = getPlayIcon() + " Reproducir " + formatAsTime(this.audioBuffer.duration);
             uploadBtn.disabled = false;
         }
         if (!this.state.audioloaded) {
             uploadBtn.disabled = true;
             playBtn.disabled = true;
+            radioBtns.forEach((btn) => btn.disabled = true);
         }
 
         if (listaFiles)
@@ -338,6 +351,7 @@ class App {
                 // crear tags
                 let li = document.createElement('li');
                 let icon = document.createElement('span');
+                let icon3 = document.createElement('span');
                 let icon2 = document.createElement('span');
                 // id para identificar
                 li.id = file.id;
@@ -346,8 +360,14 @@ class App {
                 icon.innerHTML = getCopyIcon();
                 icon.addEventListener('click', () => {
                     this.copytoClipboard(file.id);
-
                 });
+                // icono descargar
+                icon3.className = 'icon1';
+                icon3.innerHTML = getCloudDownloadIcon();
+                icon3.addEventListener('click', () => {
+                    this.loadAudioFromServer(file.id);
+                });
+                li.appendChild(icon3)
                 li.appendChild(icon);
                 // texto
                 moment.locale('es');
@@ -396,19 +416,6 @@ window.onload = function () {
             });
     } else {
         let id = window.location.pathname.split("/").pop();
-        playBtn.innerHTML = "Cargando...";
-        fetch(`/api/play/` + id)
-            .then((r) =>
-                r.json())
-            .then((json) => {
-                // decode base64 string in json.data
-                fetch(`data:audio;base64,${json.data}`)
-                    .then(res => res.blob())
-                    .then(blob => {
-                        app.blob = blob;
-                        app.loadBlob();
-                    });
-            });
+        app.loadAudioFromServer(id);
     }
-
-};
+}

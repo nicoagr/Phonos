@@ -183,6 +183,36 @@ input[type=radio] {
         transform: scale(1);
     }
 }
+input[type=radio]:disabled {
+    appearance: none;
+    background-color: #fff;
+
+    font: inherit;
+    color: #777770;
+    width: 1.15em;
+    height: 1.15em;
+    border: 0.15em solid currentColor;
+    border-radius: 50%;
+    display:inline-grid;
+    place-content: center;
+
+    &::before {
+
+        content: "";
+        width: 0.65em;
+        height: 0.65em;
+        border-radius: 50%;
+        transform: scale(0);
+        transition: 120ms transform ease-in-out;
+        box-shadow: inset 1em 1em #777770;
+        background-color: CanvasText;
+        transform-origin: top bottom;
+    }
+    &:checked::before {
+        transform: scale(1);
+    }
+
+}
 
 #usuariotxt, #passtxt, #emailtxt {
     margin:10px;
