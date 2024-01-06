@@ -214,7 +214,7 @@ let userprofile;
 passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,
-        callbackURL: "https://***REMOVED***" + appport + "/auth/google/callback"
+        callbackURL: "https://***REMOVED***/auth/google/callback"
     },
     function (accessToken, refreshToken, profile, done) {
         userprofile = profile;
@@ -265,7 +265,7 @@ const GITHUB_CLIENT_SECRET = '***REMOVED***';
 passport.use(new GithubStrategy({
         clientID: GITHUB_CLIENT_ID,
         clientSecret: GITHUB_CLIENT_SECRET,
-        callbackURL: "https://***REMOVED***" + appport + "/auth/github/callback"
+        callbackURL: "https://***REMOVED***/auth/github/callback"
     },
     function (accessToken, refreshToken, profile, done) {
         userprofile = profile;
