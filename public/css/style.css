@@ -200,3 +200,27 @@ input[type=radio] {
     font-size: 16px;
     height: 150px;
 }
+#audioPlayer {
+    padding: 12px;
+    width: 300px;
+    border: none;
+    border-radius: 5px;
+    font: 18px 'Trebuchet MS', sans-serif;
+    box-shadow: 2px 2px 8px darkgrey;
+    background-color: #DA0035;
+    color: white;
+    cursor: pointer;
+}
+
+#audioPlayer:hover {
+    background-color: darkgrey;
+}
+#audioContainer {
+    padding: 12px;
+    width: 300px;
+    border: none;
+    border-radius: 5px;
+    font: 18px 'Trebuchet MS', sans-serif;
+    box-shadow: 2px 2px 8px darkgrey;
+    /* Otros estilos que desees aplicar */
+}
