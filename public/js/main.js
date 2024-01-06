@@ -161,10 +161,7 @@ class App {
                 .then((data) => {
                     // Verificar que 'data' tiene la propiedad 'files'
                     if (data && data.files) {
-                        console.log("Archivos recibidos:", data.files);
-                        this.setState({ files: data.files});
-                        this.setState({uploaded: true})
-                        this.setState({uploading: false})
+                        this.setState({files: data.files, uploading: false});
                     } else {
                         console.error("La respuesta del servidor no contiene la lista de archivos esperada.");
                         // Realiza acciones para manejar la falta de 'files' en la respuesta del servidor
@@ -248,7 +245,6 @@ class App {
             .then((data) => {
                 // Verificar que 'data' tiene la propiedad 'files'
                 if (data && data.files) {
-                    console.log("Archivos recibidos:", data.files);
                     this.setState({ files: data.files});
                     this.setState({uploaded: true})
 
@@ -269,8 +265,11 @@ class App {
         let playBtn = document.getElementById('playBtn') || document.createElement('button');
         playBtn.innerHTML = "Cargando...";
         fetch(`/api/play/` + fileID)
-            .then((r) =>
-                r.json())
+            .then((r) => {
+                    if (!r.ok)
+                        throw new Error('Network response was not ok');
+                    return r.json();
+            })
             .then((json) => {
                 // decode base64 string in json.data
                 fetch(`data:audio;base64,${json.data}`)
@@ -298,7 +297,6 @@ class App {
             playBtn.disabled = true;
             uploadBtn.disabled = true;
             radioBtns.forEach((btn) => btn.disabled = true);
-            console.log("Error");
         } else if (this.state.playing) {
             recordBtn.disabled = true;
             uploadBtn.disabled = true;
@@ -313,19 +311,11 @@ class App {
             radioBtns.forEach((btn) => btn.disabled = true);
             recordBtn.value = 'Finalizar';
         } else if (this.state.uploading) {
-            uploadBtn.value = "Subiendo...";
+            uploadBtn.innerHTML = "Subiendo...";
             recordBtn.disabled = true;
             playBtn.disabled = true;
             uploadBtn.disabled = true;
             radioBtns.forEach((btn) => btn.disabled = true);
-        }else if (this.state.uploaded) {
-            uploadBtn.value = "Subir";
-            recordBtn.disabled = false;
-            playBtn.disabled = true;
-            playBtn.innerHTML =  "Reproducir";
-            uploadBtn.disabled = true;
-            radioBtns.forEach((btn) => btn.disabled = false);
-
         } else if (this.state.audioloaded) {
             recordBtn.innerHTML = 'Grabar';
             recordBtn.disabled = false;
@@ -333,6 +323,7 @@ class App {
             radioBtns.forEach((btn) => btn.disabled = false);
             playBtn.innerHTML = getPlayIcon() + " Reproducir " + formatAsTime(this.audioBuffer.duration);
             uploadBtn.disabled = false;
+            uploadBtn.innerHTML = 'Subir';
         }
         if (!this.state.audioloaded) {
             uploadBtn.disabled = true;
@@ -411,7 +402,6 @@ window.onload = function () {
             .then((r) =>
                 r.json())
             .then((json) => {
-                console.log("ficheros" + json.files)
                 app.setState({files: json.files});
             });
     } else {

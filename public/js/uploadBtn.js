@@ -1,8 +1,7 @@
 function getUploadBtn() {
-    let btn = document.createElement('input');
-    btn.type = 'button';
+    let btn = document.createElement('button');
     btn.id = 'uploadBtn';
-    btn.value = 'Subir';
+    btn.innerHTML = 'Subir';
     btn.className = 'boton';
     return btn;
 }
