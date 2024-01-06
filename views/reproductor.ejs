@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' href='/css/style.css'/>
     <title>Reproductor de Audio</title>
 </head>
 <body>
 <h1>Reproductor de Audio</h1>
-<audio controls>
+<audio id ="audioPlayer" controls >
     <source src="data:audio/wav;base64,<%= audioData.data %>" type="audio/wav">
     Tu navegador no soporta el elemento de audio.
 </audio>
