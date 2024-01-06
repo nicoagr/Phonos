@@ -336,7 +336,7 @@ class App {
         let liuplbtn = document.getElementById('liUploadBtn')
         liuplbtn.childNodes.forEach((node) => node.nodeType != 1 && liuplbtn.removeChild(node));
         // luego comprobamos si el usuario esta logeado y añadimos texto si no
-        if (!document.getElementById('usertitle')) {
+        if (document.getElementById('uploadBtn') && !document.getElementById('usertitle')) {
             uploadBtn.disabled = true;
             liuplbtn.appendChild(document.createTextNode('(Inicia sesión para subir archivos)'));
         }
