@@ -331,6 +331,17 @@ class App {
             radioBtns.forEach((btn) => btn.disabled = true);
         }
 
+        // Si el usuario no esta logeado, bloquear boton upload
+        // primero borramos todos los textos que hayamos metido
+        let liuplbtn = document.getElementById('liUploadBtn')
+        liuplbtn.childNodes.forEach((node) => node.nodeType != 1 && liuplbtn.removeChild(node));
+        // luego comprobamos si el usuario esta logeado y añadimos texto si no
+        if (!document.getElementById('usertitle')) {
+            uploadBtn.disabled = true;
+            liuplbtn.appendChild(document.createTextNode('(Inicia sesión para subir archivos)'));
+        }
+
+
         if (listaFiles)
             listaFiles.innerHTML = "";
 

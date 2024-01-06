@@ -21,14 +21,14 @@
         <hr>
         <% if (!share) {%>
         <p>Usuario:
-            <strong><%= user.user %></strong>
+            <strong id="usertitle"><%= user.user %></strong>
             <br>
         <small><%= user.mail %></small>
         </p>
         <% } else {%>
         <p>Audio Compartido por
             <br>
-            <small><%= user.user %></small>
+            <small id="usertitle"><%= user.user %></small>
         <% } %>
     <% } %>
     <hr>
