@@ -15,13 +15,13 @@ setInterval(() => {
     } else {
       users.forEach(user => {
         // Usamos filter para quedarnos con los audios que sean más nuevos que el marcador
-        let audiosViejos = user.audios.filter(audio => {
+        let audiosNuevos = user.audios.filter(audio => {
           let fechaAudio = new Date(audio.date); // Asumo que audio.date existe
           return fechaAudio > marcadorDia;
         });
 
         // Update the user's audios
-        db.users.update({_id: user._id}, {$set: {audios: audiosViejos}}, (err) => {
+        db.users.update({_id: user._id}, {$set: {audios: audiosNuevos}}, (err) => {
           if (err) {
             console.error("Cleanup: Error en BD");
           }

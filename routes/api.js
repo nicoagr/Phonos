@@ -72,7 +72,7 @@ router.post('/upload', async (req, res) => {
     // En req.body.recording tenemos el archivo que nos envia el cliente codificado en base64
     if (!req.session.user) {
         res.status(401).send("ERR - Login Necesario");
-        return;Com
+        return;
     }
     let audio = {
         id: strHasherCyrb53(req.body.recording),
