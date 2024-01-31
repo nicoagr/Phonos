@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const mongojs = require('mongojs');
-const db = mongojs('mongodb://***REMOVED***@***REMOVED***:27017/phonos?authSource=admin', ['users']);
+const db = mongojs('mongodb://**MODIFIED**:27017/phonos?authSource=admin', ['users']);
 
 /* GET home page. */
 router.get('/', function(req, res) {

@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const mongojs = require('mongojs');
 let validator = require('validator');
 const passport = require('passport');
-const db = mongojs('mongodb://***REMOVED***@***REMOVED***:27017/phonos?authSource=admin', ['users']);
+const db = mongojs('mongodb://**MODIFIED**:27017/phonos?authSource=admin', ['users']);
 
 /**
  * CRYPTOGRAPHY REQUIRED FOR PASSWORD HASHING AND COMPARING
@@ -207,14 +207,14 @@ passport.deserializeUser((obj, cb) => cb(null, obj));
  * GOOGLE AUTH
  */
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-const GOOGLE_CLIENT_ID = '***REMOVED***';
-const GOOGLE_CLIENT_SECRET = '***REMOVED***';
+const GOOGLE_CLIENT_ID = '**MODIFIED**';
+const GOOGLE_CLIENT_SECRET = '**MODIFIED**';
 const appport = normalizePort(process.env.PORT || '3450');
 let userprofile;
 passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,
-        callbackURL: "https://***REMOVED***/auth/google/callback"
+        callbackURL: "https://**MODIFIED**/auth/google/callback"
     },
     function (accessToken, refreshToken, profile, done) {
         userprofile = profile;
@@ -260,12 +260,12 @@ router.get('/google/callback', passport.authenticate('google', {failureRedirect:
  * GITHUB AUTH
  */
 const GithubStrategy = require('passport-github').Strategy;
-const GITHUB_CLIENT_ID = '***REMOVED***';
-const GITHUB_CLIENT_SECRET = '***REMOVED***';
+const GITHUB_CLIENT_ID = '**MODIFIED**';
+const GITHUB_CLIENT_SECRET = '**MODIFIED**';
 passport.use(new GithubStrategy({
         clientID: GITHUB_CLIENT_ID,
         clientSecret: GITHUB_CLIENT_SECRET,
-        callbackURL: "https://***REMOVED***/auth/github/callback"
+        callbackURL: "https://**MODIFIED**/auth/github/callback"
     },
     function (accessToken, refreshToken, profile, done) {
         userprofile = profile;
