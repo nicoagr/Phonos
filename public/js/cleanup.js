@@ -1,5 +1,5 @@
 const mongojs = require('mongojs');
-const db = mongojs('mongodb://***REMOVED***@***REMOVED***:27017/phonos?authSource=admin', ['users']);
+const db = mongojs('mongodb://**MODIFIED**:27017/phonos?authSource=admin', ['users']);
 
 setInterval(() => {
   console.log('Ejecutando cleanup');
