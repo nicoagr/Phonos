@@ -4,6 +4,7 @@ A node.js express voice recorder and listener app
 The entirety of the client's code was developed for the "Web Systems" subject in the third year of the "Computer Engineering" university degree. It contains some very good code, some mediocre code and bunch of horrible, spaguetti code. I'm publishing it here for the sake of posterity.
 
 (All texts are in spanish, due to the language of the course)
+
 ## Description
 This application provides some functionalities:
 - Audio recording
@@ -13,6 +14,12 @@ This application provides some functionalities:
 
 
 And it's made using node.js with the express web framework and mongodb as database.
+
+## Demo
+
+An instance of the application is hosted at
+https://sw.nico.eus . Audio files will be saved on the server for 7 days.
+
 
 ## Screenshot
 ![image](https://github.com/nicoagr/Phonos/assets/61473739/169a0be4-91d7-4c5b-aaec-6f62d1df7e9f)
