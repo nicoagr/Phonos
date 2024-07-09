@@ -15,11 +15,9 @@ This application provides some functionalities:
 
 And it's made using node.js with the express web framework and mongodb as database.
 
-## Demo
+## Warning
 
-An instance of the application is hosted at
-https://sw.nico.eus . Audio files will be saved on the server for 7 days.
-
+This application does not come with ANY security guarantees of any kind. It is shown here as an academic concept. If you choose to self host this, it is heavily recomended to harden your express instance (the _app.js_ file). For more information, see [production express best practices](https://expressjs.com/en/advanced/best-practice-performance.html)
 
 ## Screenshot
 ![image](https://github.com/nicoagr/Phonos/assets/61473739/169a0be4-91d7-4c5b-aaec-6f62d1df7e9f)
